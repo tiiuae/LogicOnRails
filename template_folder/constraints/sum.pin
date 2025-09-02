@@ -1,0 +1,8 @@
+o_led[0];"1.2 V";PIN_CT57;O;altera;"led"
+o_led[1];"1.2 V";PIN_CV55;O;altera;"led"
+o_led[0];"LVCMOS";N18;O;xilinx;"led"
+o_led[1];"LVDS";N19;O;xilinx;"led"
+o_led[0];"LVCMOS33";61;O;gowin;"led"
+o_led[1];"LVCMOS33";60;O;gowin;"led"
+o_led[0];"LVCMOS18";G12;O;microsemi;"led"
+o_led[1];"LVCMOS18";G11;O;microsemi;"led"

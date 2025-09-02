@@ -1,0 +1,115 @@
+system:
+    vendor         : "altera"
+    simulator      : "modelsim"
+    linter         : "verilator"        
+    per_prj_script : "off"
+    scripts_only   : "off"
+    keep           : "off"
+
+prj:
+    path        : "prj"
+    uproc       : "off"
+    module_name : "sum"
+    ext_modules : "off"
+    firmware    : "./firmware"
+    constraints : "./constraints"
+    defines_syn : "+define+ALTERA"
+    message_lvl : "LOG_INF"
+    rev         : "0"
+    log         : "off"
+  
+simulation:
+    defines_sim  : "+define+ALTERA"
+    tb           : "sum_tb"
+    access       : "on"
+    coverage     : "off"
+    dpi          : "off"
+    uvm          : "off"
+    comp_opt     : "off"
+    gui          : "off"
+    wave         : "./wave/wave.do"
+    default_test : "keygen_test"
+
+manifests:
+    source_rtl     : "./manifests/manifest_rtl.f"
+    source_ips     : "./manifests/manifest_ip.f"
+    source_ext     : "./manifests/manifest_ext_ip.f"
+    source_tb      : "./manifests/manifest_tb.f"
+    source_inc     : "./manifests/manifest_inc.f"
+    source_lib     : "./manifests/manifest_ext_lib.f"
+    source_netlist : "./manifests/manifest_netlist.f"
+    source_soft    : "./manifests/manifest_soft.f"
+    source_bb      : "./manifests/manifest_bb.f"
+    source_uvm     : "./manifests/manifest_uvm.f"
+
+quartus:
+    quartus_version : "22.4.0"
+    quartus_device  : "AGFB014R24B2E2V"
+    quartus_family  : "Agilex"
+    synth_opt       : ""
+    pr_opt          : ""
+    sim_opt         : ""
+    sta_opt         : ""
+    bit_opt         : ""
+
+libero:
+    libero_device  : "MPFS250TS-1FCG1152I"
+    libero_family  : "PolarFireSoC"
+    libero_die     : "MPFS250TS"
+    libero_package : "FCG1152"
+    pdc_override   : "off"
+    pdc_folder     : "pdc/"
+    synth_opt      : ""
+    pr_opt         : ""
+    sim_opt        : ""
+    sta_opt        : ""
+    bit_opt        : ""
+
+vivado:
+    vivado_device : "xc7a35tcsg324-1"
+    synth_opt     : ""
+    pr_opt        : ""
+    sim_opt       : ""
+    sta_opt       : ""
+    bit_opt       : ""
+
+gowin:
+    gowin_device : "GW1N-LV9LQ144C6/I5"
+    synth_opt    : ""
+    pr_opt       : ""
+    sim_opt      : ""
+    sta_opt      : ""
+    bit_opt      : ""
+
+questa:
+    sim_opt     : ""
+
+modelsim:
+    sim_vopt     : ""
+    sim_vsim     : ""
+    sim_vlog     : ""
+    sim_vcom     : ""
+
+verilator:
+    verilator_warn_options: "-Wno-MULTIDRIVEN"
+    
+cadence:
+    def_file       : ""
+    lef_file       : ""    
+    lib_file       : ""    
+    cpf_file       : ""
+    saif_file      : ""    
+    qrc_file       : ""    
+    cap_file       : ""    
+    low_power_flow : ""
+    phy_flow       : ""
+    ispatial_flow  : ""    
+    scanc_flow     : ""    
+    atpg_flow      : ""    
+    lec_flow       : ""
+    dbg_flow       : ""
+    synth_opt      : ""
+    pr_opt         : ""
+    sim_opt        : ""
+    sta_opt        : ""
+    bit_opt        : ""

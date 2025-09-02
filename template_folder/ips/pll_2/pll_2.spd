@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="altera_iopll_1931/sim/pll_2_altera_iopll_1931_db5il2q.vo"
+   type="VERILOG"
+   library="altera_iopll_1931" />
+ <file
+   path="sim/pll_2.v"
+   type="VERILOG"
+   library="pll_2"
+   hasInlineConfiguration="true" />
+ <topLevel name="pll_2.pll_2" />
+ <deviceFamily name="cyclone10gx" />
+ <device name="10CX220YF780I5G" />
+</simPackage>

@@ -1,0 +1,33 @@
+ice is for synthesizable designs, not tb, tb runs on host // legacy - controll via run time commaands in the shell
+
+
+ixcom, synthesizes part of the tb - sva, dpi, vpi
+non synth part is run on the host. controll is through tb
+
+-----------------------
+ice flow
+hdlice <file> //support incremental comp, which means only comp the new files
+
+vavhdl -work <workdir> <vhdl files>
+
+vavlog -work <workdir> <v files>
+vavlog -work <workdir> -sv <sv files>
+vaelab $top_level
+
+-> next step results
+QTDB/<database>.llib
+
+linkRfLib <lib> //linkds pre imported libs 
+refLib <lib> //a lib can be a librari from protium paladium or a QTDB db
+importOption -add {library <libname>}
+netlistFile {verilog <file>}
+designImport
+
+-> emulator config
+emulatorConfiguration --add {file <hwcnfgfile>} {boards 0.0+0.1}
+
+->
+
+clockOptions -add {technology CAKE 1}
+clockFrequency -add {ddr 400Mhz}
+

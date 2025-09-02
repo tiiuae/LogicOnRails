@@ -1,0 +1,3 @@
+
+clockOption -add {technology CAKE 1}
+clockFrequency -add "top.clk 125.33 mhz“

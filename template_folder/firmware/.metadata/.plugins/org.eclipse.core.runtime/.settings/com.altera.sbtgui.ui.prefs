@@ -1,0 +1,4 @@
+eclipse.preferences.version=1
+newSoftwareExampleWizardPage.defaultLocation=/home/matheusferronato/Projects/Altera/one-hw/software
+newSoftwareExampleWizardPage.sopcinfoFile=/home/matheusferronato/Projects/Altera/save/one_hw/one_hw.sopcinfo
+newSoftwareExampleWizardPage2.newBspLocation=/home/matheusferronato/Projects/Altera/one-hw/firmware_bsp

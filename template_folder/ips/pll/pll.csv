@@ -1,0 +1,18 @@
+# system info pll on 2023.10.11.12:00:52
+system_info:
+name,value
+DEVICE,AGFB014R24B2E2V
+DEVICE_FAMILY,Agilex
+GENERATION_ID,0
+#
+#
+# Files generated for pll on 2023.10.11.12:00:52
+files:
+filepath,kind,attributes,module,is_top
+sim/pll.v,VERILOG,CONTAINS_INLINE_CONFIGURATION,pll,true
+altera_iopll_1931/sim/pll_altera_iopll_1931_jgj4vpq.vo,VERILOG,,pll_altera_iopll_1931_jgj4vpq,false
+#
+# Map from instance-path to kind of module
+instances:
+instancePath,module
+pll.iopll_0,pll_altera_iopll_1931_jgj4vpq

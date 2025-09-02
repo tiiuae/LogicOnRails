@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""
+run_cli.py
+~~~~~~~~~~
+
+This script acts as the entry point for the hardware framework.  It
+performs a two stage configuration and dispatch process:
+
+1. The :class:`~config_manager.ConfigManager` is used to handle
+   high-level commands such as ``generate`` and ``purge``.  If any
+   such command is invoked the program terminates early.
+2. Otherwise the :class:`~project_parser.ProjectParser` loads the
+   YAML configuration and parses runtime arguments.  Environment
+   variables are populated accordingly and an :class:`~action_manager.ActionManager`
+   is used to invoke the requested build stage.
+
+Invoke this script with ``--help`` to see available options.
+"""
+
+from __future__ import annotations
+
+import sys
+import os
+import inspect
+
+from classes.config_manager import ConfigManager
+from classes.project_parser import ProjectParser
+from classes.action_manager import ActionManager
+
+
+def main() -> None:
+    # Determine absolute path to this script for locating framework files
+    current_frame = inspect.currentframe()
+    assert current_frame is not None
+    script_file = os.path.abspath(inspect.getfile(current_frame))
+    # Stage 1: handle project generation and destruction
+    cfg = ConfigManager(sys.argv, script_file)
+    if not cfg.handle():
+        return
+    # Stage 2: load runtime configuration and parse arguments
+    parser = ProjectParser(frm_file=script_file, user_yaml=cfg.curr_yaml)
+    args, func = parser.parse_inputs()
+    # Update environment variables to reflect parsed options
+    parser.populate_env(args)
+    # Stage 3: dispatch the requested action
+    act = ActionManager(func, os.getcwd(), script_file, args)
+    act.run()
+
+
+if __name__ == '__main__':
+    main()
