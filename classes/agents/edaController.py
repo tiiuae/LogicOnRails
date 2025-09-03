@@ -9,7 +9,6 @@
 
 from .alteraAgent import AlteraAgent
 from .xilinxAgent import XilinxAgent
-from .gowinAgent import GowinAgent
 from .questaAgent import QuestaAgent
 from .xceliumAgent import XceliumAgent
 from .verilatorAgent import VerilatorAgent
@@ -32,15 +31,12 @@ class EDAController():
     def select_vendor(self, vendor, args):
         if (vendor == "altera"): return AlteraAgent(args)
         if (vendor == "cadence"): return CadenceAgent(args)
-        elif (vendor == "gowin"): return GowinAgent(args)
         elif (vendor == "microsemi"): return MicrosemiAgent(args)
         else: return XilinxAgent(args)
         
     #### SIMULATOR #####
     def select_sim(self, simulator, vendor, args):
-        if (simulator == "modelsim"):
-            if (vendor == "gowin"): return  GowinAgent(args)
-            else: return ModelSimAgent(args)
+        if (simulator == "modelsim"): return ModelSimAgent(args)
         elif (simulator == "questa"): return QuestaAgent(args)
         elif (simulator == "vivado"): return XilinxAgent(args)
         elif (simulator == "xcelium"): return XceliumAgent(args)
