@@ -51,33 +51,20 @@ add the following lines to your bashrc
 
 ## 📦 Usage - Inside The Project
 
-Create project environment
-
-rls create
-
-Run lint checks with Verilator
-
-rls lint
-
-Run simulation
-
-rls sim
-
-Run synthesis
-
-rls synth
-
-Place & Route
-
-rls route
-
-Static Timing Analysis
-
-rls sta
-
-Bitstream generation
-
-rls bit
+- **Create project environment**
+  - rls create
+- **Run lint checks with Verilator**
+  - rls lint
+- **Run simulation**
+  - rls sim
+- **Run synthesis**
+  - rls synth
+- **Place & Route**
+  - rls route
+- **Static Timing Analysis**
+  - rls sta
+- **Bitstream generation**
+  - rls bit
 
 ## 📦 Structure
 ```
@@ -100,9 +87,14 @@ project/
 ## 🔮 Roadmap
 
 [ ] Improve VPI and coverage support in Vivado/Questa
+
 [ ] Enhance STA report parsing across all vendors
+
 [ ] Extend MSS/Nios/MicroBlaze firmware flow integration
+
 [ ] Support on-chip scopes (ILA, SignalTap, Libero)
+
 [ ] Add partial reconfiguration support
+
 [ ] Full Cadence flow controllers (Tempus, Innovus, Jasper, Palladium, Protium)
 
