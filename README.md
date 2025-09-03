@@ -1,7 +1,7 @@
 # 🛠️ Logic On Rails — Multi-Vendor EDA Automation Framework
 
 Logic On Rails is a modular automation system designed to unify FPGA/ASIC flows across multiple vendors and tools.  
-It simplifies project setup, synthesis, simulation, static timing analysis (STA), place-and-route (P&R), bitstream generation, and debug — while remaining vendor-agnostic.  
+It simplifies project setup, synthesis, simulation, static timing analysis (STA), place-and-route (P&R), bitstream generation, and debug — while remaining vendor-agnostic. For a more in depth information and examples, run the manual with rls man 
 
 ## ✨ Version:
 
@@ -46,7 +46,6 @@ rls generate --nm prj_name #creates a project with the name prj_name
 rls generate --vr xilinx #creates a project with the yaml configured to xilinx
 rls man #opens man (may required aditional pip installation for Qt based python library)
 rls purge #deletes a prject (must have the rails original)
-add the following lines to your bashrc
 ```
 
 ## 📦 Usage - Inside The Project
@@ -69,12 +68,25 @@ add the following lines to your bashrc
 ## 📦 Structure
 ```
 project/
+├── firmware/
+├── tb/
+│   ├── classes
+│   |   ├── driver
+│   |   ├── generation
+│   |   └── logger
+│   ├── defines
+│   ├── functions
+│   ├── packages
+│   └── software
+│       └── vpi
+├── wave/
+├── ips/
+├── rtl/
+│   ├── aux
+│   ├── interfaces
+│   ├── packages
+│   └── wrappers
 ├── manifests/
-│   ├── rtl.manifest       # RTL sources
-│   ├── tb.manifest        # Testbenches
-│   ├── ip.manifest        # Vendor IPs (xci, qsys, tcl, etc.)
-│   ├── software.manifest  # Software sources (.c/.h)
-│   └── inc.manifest       # Include directories
 ├── constraints/
 │   ├── top.sdc / top.xdc / top.pdc
 │   ├── top.pin
