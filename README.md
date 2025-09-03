@@ -41,25 +41,19 @@ complete -W "auto lint generate purge prj start restart module hier update creat
 
 ## 📦 Usage
 
-# Create project environment
+Create project environment
 rls create
-
-# Run lint checks with Verilator
+Run lint checks with Verilator
 rls lint
-
-# Run simulation (Vivado, Questa, or Xcelium)
+Run simulation (Vivado, Questa, or Xcelium)
 rls sim
-
-# Run synthesis
+Run synthesis
 rls synth
-
-# Place & Route
+Place & Route
 rls route
-
-# Static Timing Analysis
+Static Timing Analysis
 rls sta
-
-# Bitstream generation
+Bitstream generation
 rls bit
 
 ## 📦 Structure
