@@ -39,25 +39,48 @@ PATH=$PATH:"<yourpath>/LogicOnRails/"
 complete -W "auto lint generate purge prj start restart module hier update create delete synth bit sta sim route up report populate help man" rls
 ```
 
-## 📦 Usage
+## 📦 Starting a Project
+```bash
+rls generate #creates a project with the name rails
+rls generate --nm prj_name #creates a project with the name prj_name
+rls generate --vr xilinx #creates a project with the yaml configured to xilinx
+rls man #opens man (may required aditional pip installation for Qt based python library)
+rls purge #deletes a prject (must have the rails original)
+add the following lines to your bashrc
+```
+
+## 📦 Usage - Inside The Project
 
 Create project environment
+
 rls create
+
 Run lint checks with Verilator
+
 rls lint
-Run simulation (Vivado, Questa, or Xcelium)
+
+Run simulation
+
 rls sim
+
 Run synthesis
+
 rls synth
+
 Place & Route
+
 rls route
+
 Static Timing Analysis
+
 rls sta
+
 Bitstream generation
+
 rls bit
 
 ## 📦 Structure
-
+```
 project/
 ├── manifests/
 │   ├── rtl.manifest       # RTL sources
@@ -72,14 +95,14 @@ project/
 ├── reports/
 │   └── ...                # Generated reports/logs
 └── config.yaml            # Project configuration
-
+```
 
 ## 🔮 Roadmap
 
-[] Improve VPI and coverage support in Vivado/Questa
-[] Enhance STA report parsing across all vendors
-[] Extend MSS/Nios/MicroBlaze firmware flow integration
-[] Support on-chip scopes (ILA, SignalTap, Libero)
-[] Add partial reconfiguration support
-[] Full Cadence flow controllers (Tempus, Innovus, Jasper, Palladium, Protium)
+[ ] Improve VPI and coverage support in Vivado/Questa
+[ ] Enhance STA report parsing across all vendors
+[ ] Extend MSS/Nios/MicroBlaze firmware flow integration
+[ ] Support on-chip scopes (ILA, SignalTap, Libero)
+[ ] Add partial reconfiguration support
+[ ] Full Cadence flow controllers (Tempus, Innovus, Jasper, Palladium, Protium)
 
