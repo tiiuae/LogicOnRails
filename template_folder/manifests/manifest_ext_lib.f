@@ -1,3 +1,4 @@
+#PRECOMPILED_IPS_USE-TOOL:PATH
 #QUESTA:<path>
 #XCELIUM:<path>
 #
