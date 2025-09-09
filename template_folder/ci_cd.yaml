@@ -101,6 +101,7 @@ cadence:
     saif_file      : ""    
     qrc_file       : ""    
     spef_file      : ""    
+    gds2_file      : ""    
     cap_file       : ""    
     low_power_flow : ""
     phy_flow       : ""
