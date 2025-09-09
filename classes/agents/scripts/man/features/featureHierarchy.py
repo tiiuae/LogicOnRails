@@ -2,7 +2,7 @@ class FeatureHierarchy:
     def __init__(self):
         self.option_name = "Hierarchy"
         self.option_content = self.content()
-        self.order = 11
+        self.order = 96
 
     def content(self):
         return """

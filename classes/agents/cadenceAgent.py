@@ -18,10 +18,14 @@ class CadenceAgent():
         self.glog_filename = f'./_genusLog.txt'
         self.mscript_filename = f'./_modusScript.tcl'
         self.mlog_filename = f'./_modusLog.txt'
+        self.stascript_filename = f'./_tempusScript.tcl'
+        self.stalog_filename = f'./_tempusLog.txt'
         os.environ["genus_script_name"] = self.gscript_filename
         os.environ["genus_log_name"] = self.glog_filename
         os.environ["modus_script_name"] = self.mscript_filename
         os.environ["modus_log_name"] = self.mlog_filename
+        os.environ["tempus_script_name"] = self.stascript_filename
+        os.environ["tempus_log_name"] = self.stalog_filename
 
         self.vendor = os.getenv('vendor')
         self.reports = os.getenv('reports_path')
@@ -36,8 +40,10 @@ class CadenceAgent():
 
         from genuscontroller import GenusController
         from moduscontroller import ModusController
+        from tempuscontroller import TempusController
         self.genusCtrl = GenusController()
         self.modusCtrl = ModusController()
+        self.tempusCtrl = TempusController()
 
         self.create = "create.tcl"
         self.synth = "synth.tcl"
@@ -60,6 +66,14 @@ class CadenceAgent():
             subprocess.call(["modus", f"-file {self.folder}/{self.create}"])
         self.modusCtrl.cleanEnv()
         self.modusCtrl.printLogs()
+
+    def runSta(self):
+        self.tempusCtrl.createSTAEnv()
+        if not (self.scripts_only):
+            subprocess.call(["tempus", f"-file {self.folder}/{self.create}"])
+        self.tempusCtrl.cleanEnv()
+        self.tempusCtrl.printLogs()
+
 
     def runRoute(self):
         subprocess.call(["innovus", f"-stylus -files {self.folder}/{self.route}"])

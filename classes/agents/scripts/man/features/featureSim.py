@@ -2,7 +2,7 @@ class FeatureSim:
     def __init__(self):
         self.option_name = "Sim"
         self.option_content = self.content()
-        self.order = 6
+        self.order = 33
 
     def content(self):
         return """

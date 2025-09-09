@@ -2,7 +2,7 @@ class FeatureModule:
     def __init__(self):
         self.option_name = "Module"
         self.option_content = self.content()
-        self.order = 10
+        self.order = 97
 
     def content(self):
         return """

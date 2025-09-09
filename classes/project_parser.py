@@ -282,6 +282,7 @@ class ProjectParser:
                 'cadence_lib': 'lib_file',
                 'cadence_saif': 'saif_file',
                 'cadence_cap': 'cap_file',
+                'cadence_spef': 'spef_file',
                 'cadence_qrc': 'qrc_file',
                 'cadence_cpf': 'cpf_file',
                 'cadence_lp_syn': 'low_power_flow',

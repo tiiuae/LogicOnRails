@@ -612,7 +612,7 @@ class GenusController():
  
     def loadGUI(self, f):
         if (self.en.gui):
-            f.write("\n\nGui \n")
+            f.write("\n\n#Gui \n")
             f.write(f"gui_show \n")
         else:
             f.write(f"quit \n")
