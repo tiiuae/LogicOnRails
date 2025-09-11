@@ -11,7 +11,10 @@ import subprocess
 import os
 import inspect
 import shutil
+import glob
 from enum import IntEnum
+
+from types import SimpleNamespace #ok this is pretty cool, great work python devs :)
 
 class LogLevel(IntEnum):
     LOG_INF = 0
@@ -34,26 +37,11 @@ class ModelSimController():
     ##
     ################################
     def __init__(self):
+        self.cnfg=SimpleNamespace()
+        self.path=SimpleNamespace()
         self.manifests = self.genManifests()
         self.genConstants()
         self.genCommandVars()
-
-    ###############################
-    ##    TOOL SPECIFIC CONFIG
-    ##
-    ################################
-
-    def genEDAReq(self, f):
-        if (self.vendor == "microsemi"):
-            if (os.getenv('LIBERO_ROOT_DIR') != ""):
-                f.write(f'\n\n#Microsemi Flow\n')
-                f.write(f'vmap polarfire {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/precompiled/vlog/polarfire\n')
-                self.pli_cmd += f' -pli {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/pli/pf_crypto_lin_se64_pli.so'
-                self.ip_cmd += self.microsemi_ip_libs
-            else:
-                self.log_msg("LOG_ERR : yaml config for microsemi flow, but LIBERO_ROOT_DIR env variable is not defined", "LOG_ERR")
-                self.log_msg("LOG_ERR : define variable as <libero install folder>/Libero/", "LOG_ERR")
-
 
     ###############################
     ##         AUX
@@ -92,6 +80,7 @@ class ModelSimController():
     ################################
     def genConstants(self):
         self.vendor = os.getenv('vendor')
+        self.cnfg.module_name = os.getenv('module_name')
         self.module_name = os.getenv('module_name')
         self.cov_en = (os.getenv('coverage') == "on")
         self.gui_en = (os.getenv('gui') == "on")
@@ -108,6 +97,9 @@ class ModelSimController():
         self.ext_usr_vcom_opt = os.getenv('modelsim_sim_vcom')
         self.ext_usr_vopt_opt = os.getenv('modelsim_sim_vopt')
         self.ext_usr_vsim_opt = os.getenv('modelsim_sim_vsim')
+
+        self.path.prj = f"{os.getenv('prj_path')}/{self.cnfg.module_name}"
+        self.path.compnt = f'{self.path.prj}/component'
 
         self.log_filename = os.getenv('modelsim_log_name')
         self.gen_filename = os.getenv('modelsim_script_name')
@@ -161,6 +153,35 @@ class ModelSimController():
         if(self.cov_en):
             self.cov_com = f' -coveropt 3 +cover'
             self.cov_sim = f' -coverage -c -do "coverage save -onexit -directive -codeAll {offset_path}{self.reports}/{self.tb_top}.ucdb"'
+
+    ###############################
+    ##    TOOL SPECIFIC CONFIG
+    ##
+    ################################
+
+    def genEDAReq(self, f):
+        if (self.vendor == "microsemi"):
+            if (os.getenv('LIBERO_ROOT_DIR') != ""):
+                f.write(f'\n\n#Microsemi Flow\n')
+                f.write(f'vmap polarfire {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/precompiled/vlog/polarfire\n')
+                f.write(f'vmap polarFire {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/precompiled/vlog/polarfire\n')
+                self.pli_cmd += f' -pli {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/pli/pf_crypto_lin_se64_pli.so'
+                self.ip_cmd += self.microsemi_ip_libs
+                comp_files = glob.glob(f"{self.path.compnt}/work/**/*.v*", recursive=True)
+                comp_files = [p for p in comp_files if "/test/" not in p]
+
+                if comp_files:
+                    f.write(f'\n\n#Microsemi IPs Simulation\n')
+                    for each_c in comp_files:
+                        if (".vhd" in each_c):
+                            f.write(f'vcom -2008 -explicit -work presynth {each_c}\n')
+                        elif (".v" in each_c):
+                            f.write(f'vlog -sv -work presynth {each_c}\n')
+                    self.ip_cmd += f" -L presynth "
+            else:
+                self.log_msg("LOG_ERR : yaml config for microsemi flow, but LIBERO_ROOT_DIR env variable is not defined", "LOG_ERR")
+                self.log_msg("LOG_ERR : define variable as <libero install folder>/Libero/", "LOG_ERR")
+
 
     ###############################
     ##         FILE CONFIG
