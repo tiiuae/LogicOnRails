@@ -232,12 +232,13 @@ class  LiberoController():
         if self.en.uproc:
             if os.environ.get("ACTEL_UPROC_DIR", "") != "":
                 libero_upro_dir = os.getenv('ACTEL_UPROC_DIR')
+                mss_fd_name = next(d for d in os.listdir(self.path.fw) if os.path.isdir(os.path.join(self.path.fw, d)))
                 self.log_msg(f"LOG_INF: Running MSS flow", "LOG_INF")
                 self.log_msg(f"LOG_WRN: MSS logic must be inside {self.path.fw}", "LOG_WRN")
                 f.write("\n\n#MSS Flow - code below follows Libero self gen code\n")
                 f.write(f"#MSS Flow - be sure you hav you mss logic inside {self.path.fw}\n")
-                f.write(f'exec {libero_upro_dir} -GENERATE -CONFIGURATION_FILE:{self.path.fw}/MSS_VIDEO_KIT/MSS_VIDEO_KIT.cfg -OUTPUT_DIR:{self.path.fw}/MSS_VIDEO_KIT\n')
-                f.write(f'import_mss_component -file "{self.path.fw}/MSS_VIDEO_KIT/MSS_VIDEO_KIT.cxz"\n')       
+                f.write(f'exec {libero_upro_dir} -GENERATE -CONFIGURATION_FILE:{self.path.fw}/{mss_fd_name}/{mss_fd_name}.cfg -OUTPUT_DIR:{self.path.fw}/{mss_fd_name}\n')
+                f.write(f'import_mss_component -file "{self.path.fw}/{mss_fd_name}/{mss_fd_name}.cxz"\n')       
             else:
                 self.log_msg(f"LOG_ERR: when running uproc flow, user must define ACTEL_UPROC_DIR env var", "LOG_ERR")
                 self.log_msg(f"LOG_CRT: maybe: <install path>/libero/<libero ver>/Libero/bin64/pfsoc_mss ?", "LOG_CRT")

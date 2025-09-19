@@ -402,7 +402,14 @@ class ModelSimController():
             print(f"{GREEN}INFO:Displaying compilation {YELLOW}CRITICAL WARNING\n")
             os.system(f'grep "** Warning:" {self.reports}/{self.module_name}.modelsim.rpt')
             print(f"{GREEN}INFO:Displaying compilation {RED}ERRORS\n")
-            os.system(f'grep "** Error" {self.reports}/{self.module_name}.modelsim.rpt')
+            cmd = f'grep "** Error" {self.reports}/{self.module_name}.modelsim.rpt'
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            errors = result.stdout
+            err_list = errors.split("\n")
+            err_filtered = [line for line in err_list if "# Errors: 0" not in line]
+            str_filtr = "\n".join(err_filtered) + "\n"
+            print(str_filtr)
+
             print(ENDCOLOR)
 
     ###############################
