@@ -91,7 +91,8 @@ package axi4_driver_pkg;
             viface.if_awlen   <= '0;  
             viface.if_awaddr  <= '0;  
             viface.if_awprot  <= '0;  
-            viface.if_awburst <= '0;  
+            viface.if_awburst <= '0;
+            viface.if_awid    <= '0;  
 
             viface.if_wdata <= '0;
             viface.if_wstrb <= '0;
@@ -107,7 +108,8 @@ package axi4_driver_pkg;
             viface.if_arlen   <= '0;  
             viface.if_araddr  <= '0;  
             viface.if_arprot  <= '0;  
-            viface.if_arburst <= '0;  
+            viface.if_arburst <= '0; 
+            viface.if_arid    <= '0; 
 
             viface.if_rready <= 1'b0;
 
@@ -253,11 +255,13 @@ package axi4_driver_pkg;
             @(posedge viface.i_clk);
             for (int j = 0; j < curr_burst; j ++) begin
                 int idx = ((iter*awlen) + j) % tx_pkt_len;
-                logic last = (j == awlen-1);
+                logic last = (j == awlen);
+                $display("idx %d, iter %d, len %d, mod %d", idx, iter, awlen, tx_pkt_len);
                 write_phase(a_tx[idx], last);
             end
             clear();
             rsp_phase ();
+            viface.if_awid <= viface.if_awid+1;            
             ->> e_pkt_tx;
         endtask  
 
@@ -275,6 +279,7 @@ package axi4_driver_pkg;
                 read_phase();
             end
             clear();
+            viface.if_arid <= viface.if_arid+1;            
             ->> e_pkt_rx;
         endtask 
 
@@ -290,13 +295,18 @@ package axi4_driver_pkg;
             input logic [7:0]           awlen,
             input logic [2:0]           awprot
         );
-            logic[ADDR_WIDTH-1:0] init_addr = addr;            
+            logic[ADDR_WIDTH-1:0] init_addr = addr;  
             for (int i =0; i < pkt_n; i++ ) begin
-                init_addr = handle_addr(init_addr, awburst, awlen);
-                transmit_batch(a_tx, addr, i, awburst, awlen, awprot);
-                gen_delay();
-                fit_to_bus();
+                int iter = (a_tx.size() > (awlen+1))? (a_tx.size() / (awlen+1)) : 1;
+                for (int j = 0; j < iter; j++) begin
+                    init_addr = handle_addr(init_addr, awburst, awlen);
+                    transmit_batch(a_tx, addr, j, awburst, awlen, awprot);
+                    gen_delay();
+                end
                 ag_framegen.frame_gen();
+                fit_to_bus();
+                $display("new pkg");
+                $displayh("%p", a_tx);
             end
         endtask
 
