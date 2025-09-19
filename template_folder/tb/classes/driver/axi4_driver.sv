@@ -84,7 +84,9 @@ package axi4_driver_pkg;
         //         INIT DESIGN
         //################################## 
 
-        task clear();
+        task clear(
+            input logic keep_id = 1'b0
+        );
             viface.if_awburst <= '0; 
             viface.if_awvalid <= 1'b0; 
             viface.if_awsize  <= '0;
@@ -92,7 +94,6 @@ package axi4_driver_pkg;
             viface.if_awaddr  <= '0;  
             viface.if_awprot  <= '0;  
             viface.if_awburst <= '0;
-            viface.if_awid    <= '0;  
 
             viface.if_wdata <= '0;
             viface.if_wstrb <= '0;
@@ -109,11 +110,13 @@ package axi4_driver_pkg;
             viface.if_araddr  <= '0;  
             viface.if_arprot  <= '0;  
             viface.if_arburst <= '0; 
-            viface.if_arid    <= '0; 
 
             viface.if_rready <= 1'b0;
 
-
+            if (keep_id == 1'b0) begin
+                viface.if_arid    <= '0; 
+                viface.if_awid    <= '0;  
+            end
         endtask
 
         task wait_rst();
@@ -208,9 +211,10 @@ package axi4_driver_pkg;
             viface.if_rready <= 1'b1;
             do begin
                 @(posedge viface.i_clk);
-            end while (!viface.if_arvalid);
+            end while (viface.if_rvalid == 1'b0);
             if(viface.if_rresp < 2'b10) begin
                 a_rxmem.push_front(viface.if_rdata);
+                $display("received %h", viface.if_rdata);
             end else begin
                 $display("error when reading addr %h", viface.if_araddr);
                 ->> e_pkt_err;
@@ -256,10 +260,9 @@ package axi4_driver_pkg;
             for (int j = 0; j < curr_burst; j ++) begin
                 int idx = ((iter*awlen) + j) % tx_pkt_len;
                 logic last = (j == awlen);
-                $display("idx %d, iter %d, len %d, mod %d", idx, iter, awlen, tx_pkt_len);
                 write_phase(a_tx[idx], last);
             end
-            clear();
+            clear(1'b1);
             rsp_phase ();
             viface.if_awid <= viface.if_awid+1;            
             ->> e_pkt_tx;
@@ -278,7 +281,7 @@ package axi4_driver_pkg;
             for (int i = 0; i <= arlen; i ++) begin
                 read_phase();
             end
-            clear();
+            clear(1'b1);
             viface.if_arid <= viface.if_arid+1;            
             ->> e_pkt_rx;
         endtask 
@@ -305,8 +308,6 @@ package axi4_driver_pkg;
                 end
                 ag_framegen.frame_gen();
                 fit_to_bus();
-                $display("new pkg");
-                $displayh("%p", a_tx);
             end
         endtask
 
@@ -351,3 +352,4 @@ package axi4_driver_pkg;
         endtask  
     endclass
 endpackage
+
