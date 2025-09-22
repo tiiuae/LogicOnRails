@@ -159,6 +159,22 @@ class ModelSimController():
     ##
     ################################
 
+    def microsemiIP(self, f):
+        if os.path.exists("presynth"):
+            self.log_msg("LOG_CRT : presynth lib already exists, scripts WILL NOT recompile libero IPs", "LOG_CRT")
+        else:
+            comp_files = glob.glob(f"{self.path.compnt}/work/**/*.v*", recursive=True)
+            comp_files = [p for p in comp_files if "/test/" not in p]
+            if comp_files:
+                f.write(f'\n\n#Microsemi IPs Simulation\n')
+                for each_c in comp_files:
+                    if (".vhd" in each_c):
+                        f.write(f'vcom -2008 -explicit -work presynth {each_c}\n')
+                    elif (".v" in each_c):
+                        f.write(f'vlog -sv -work presynth {each_c}\n')
+        self.ip_cmd += f" -L presynth "
+
+
     def genEDAReq(self, f):
         if (self.vendor == "microsemi"):
             if (os.getenv('LIBERO_ROOT_DIR') != ""):
@@ -167,17 +183,7 @@ class ModelSimController():
                 f.write(f'vmap polarFire {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/precompiled/vlog/polarfire\n')
                 self.pli_cmd += f' -pli {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/pli/pf_crypto_lin_se64_pli.so'
                 self.ip_cmd += self.microsemi_ip_libs
-                comp_files = glob.glob(f"{self.path.compnt}/work/**/*.v*", recursive=True)
-                comp_files = [p for p in comp_files if "/test/" not in p]
-
-                if comp_files:
-                    f.write(f'\n\n#Microsemi IPs Simulation\n')
-                    for each_c in comp_files:
-                        if (".vhd" in each_c):
-                            f.write(f'vcom -2008 -explicit -work presynth {each_c}\n')
-                        elif (".v" in each_c):
-                            f.write(f'vlog -sv -work presynth {each_c}\n')
-                    self.ip_cmd += f" -L presynth "
+                self.microsemiIP(f)
             else:
                 self.log_msg("LOG_ERR : yaml config for microsemi flow, but LIBERO_ROOT_DIR env variable is not defined", "LOG_ERR")
                 self.log_msg("LOG_ERR : define variable as <libero install folder>/Libero/", "LOG_ERR")
@@ -381,6 +387,7 @@ class ModelSimController():
     def cleanEnv(self):
         if os.path.exists("simlib") and not self.keep_en : shutil.rmtree("simlib")
         if os.path.exists("work") and not self.keep_en: shutil.rmtree("work")
+        if os.path.exists("presynth") and not self.keep_en: shutil.rmtree("presynth")
         if os.path.exists("transcript"): 
             if (self.log_en):
                 shutil.move("transcript", f"{self.reports}/{self.module_name}.modelsim.rpt")
