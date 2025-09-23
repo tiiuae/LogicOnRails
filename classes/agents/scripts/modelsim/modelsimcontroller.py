@@ -100,6 +100,9 @@ class ModelSimController():
 
         self.path.prj = f"{os.getenv('prj_path')}/{self.cnfg.module_name}"
         self.path.compnt = f'{self.path.prj}/component'
+        self.path.work   = f'{self.path.compnt}/work'
+        self.path.micrsm = f'{self.path.compnt}/Microsemi'
+        self.path.actl   = f'{self.path.compnt}/Actel'
 
         self.log_filename = os.getenv('modelsim_log_name')
         self.gen_filename = os.getenv('modelsim_script_name')
@@ -159,12 +162,15 @@ class ModelSimController():
     ##
     ################################
 
+    #REVIEW, USE THE cxf FILE INSTEAD AND READ THE HDL_FILESET RATHER THEN  READ EVERYTHING
     def microsemiIP(self, f):
         if os.path.exists("presynth"):
             self.log_msg("LOG_CRT : presynth lib already exists, scripts WILL NOT recompile libero IPs", "LOG_CRT")
         else:
-            comp_files = glob.glob(f"{self.path.compnt}/work/**/*.v*", recursive=True)
-            comp_files = [p for p in comp_files if "/test/" not in p]
+            comp_files = glob.glob(f"{self.path.work}/**/*.v*", recursive=True)
+            comp_files += glob.glob(f"{self.path.micrsm}/**/*.v*", recursive=True)
+            comp_files += glob.glob(f"{self.path.compnt}/**/*.v*", recursive=True)
+            comp_files = [p for p in comp_files if ("/test/" not in p) and ("/Stimulus/" not in p) and ("coreparameters" not in p)]
             if comp_files:
                 f.write(f'\n\n#Microsemi IPs Simulation\n')
                 for each_c in comp_files:
@@ -173,7 +179,6 @@ class ModelSimController():
                     elif (".v" in each_c):
                         f.write(f'vlog -sv -work presynth {each_c}\n')
         self.ip_cmd += f" -L presynth "
-
 
     def genEDAReq(self, f):
         if (self.vendor == "microsemi"):
