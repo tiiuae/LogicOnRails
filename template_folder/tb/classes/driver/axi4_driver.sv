@@ -94,7 +94,6 @@ package axi4_driver_pkg;
             viface.if_wstrb <= '0;
             viface.if_wlast <= '0;
             viface.if_wvalid <= 1'b0;
-            viface.if_wready <= '0;
 
             viface.if_bready <= 1'b0;
 
@@ -158,6 +157,7 @@ package axi4_driver_pkg;
             input logic last
         );
             int rst;
+            $display("BBBBBBBBBB => %h", data);
             viface.if_wvalid <= 1'b1; 
             if (last == 1'b1) begin
                 rst = calc_rst();
@@ -255,8 +255,11 @@ package axi4_driver_pkg;
             for (int j = 0; j < curr_burst; j ++) begin
                 int idx = ((iter*awlen) + j) % tx_pkt_len;
                 logic last = (j == awlen);
+                $display("AAAAAAAA => %h", a_tx[idx]);
                 write_phase(a_tx[idx], last);
+                $display("CCCCC => %h", a_tx[idx]);
             end
+            $display("DDDD =>",);
             clear(1'b1);
             rsp_phase ();
             viface.if_awid <= viface.if_awid+1;            
