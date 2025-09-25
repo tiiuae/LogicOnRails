@@ -5,7 +5,8 @@ package axi4_driver_pkg;
     class AXI4Driver  #(
         parameter DATA_WIDTH = 32,
         parameter ADDR_WIDTH = 32,
-        parameter RX_MEM_DEPTH = 1024
+        parameter RX_MEM_DEPTH = 1024,
+        type      VIF 
     ) extends GenericDriver #(
         .BUS_WIDTH ( DATA_WIDTH  )
     );
@@ -14,10 +15,7 @@ package axi4_driver_pkg;
         //         VARIABLE DECLARATION
         //##################################
         
-        virtual interface AXI4_iface #(
-            .ADDR_WIDTH(ADDR_WIDTH),
-            .DATA_WIDTH(DATA_WIDTH)
-        ) viface;
+        VIF viface;
    
         //##################################
         //         CONSTRUCTOR
@@ -38,10 +36,7 @@ package axi4_driver_pkg;
         logic [DATA_WIDTH-1:0] a_rxmem [$:RX_MEM_DEPTH-1];
 
         function new(
-            input virtual interface AXI4_iface #(
-                .ADDR_WIDTH(ADDR_WIDTH),
-                .DATA_WIDTH(DATA_WIDTH)
-            ) this_viface,
+            input VIF this_viface,
             input byte this_arr [][],
             input int this_frm_meta [0:1][],
             input logic this_addrrnd,
@@ -352,4 +347,3 @@ package axi4_driver_pkg;
         endtask  
     endclass
 endpackage
-
