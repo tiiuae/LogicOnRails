@@ -49,6 +49,9 @@ package axi4_driver_pkg;
             addr_rng_min = this_addr_rng_min;
             addr_rng_max = this_addr_rng_max;
             ag_framegen.print_stream();
+            if (viface.DATA_WIDTH != DATA_WIDTH) begin
+                $display("error, width missmatch between class and interface");
+            end
         endfunction
 
         //##################################
@@ -154,12 +157,12 @@ package axi4_driver_pkg;
 
         task automatic  write_phase (
             input logic [DATA_WIDTH-1:0]  data  = '1,
-            input logic last
+            input logic last_wr,
+            input logic last_iter
         );
             int rst;
-            $display("BBBBBBBBBB => %h", data);
             viface.if_wvalid <= 1'b1; 
-            if (last == 1'b1) begin
+            if ((last_iter & last_wr) == 1'b1) begin
                 rst = calc_rst();
                 if (rst == 0) begin
                     viface.if_wstrb  <= '1;
@@ -169,7 +172,7 @@ package axi4_driver_pkg;
             end else begin
                 viface.if_wstrb  <= '1;
             end
-            viface.if_wlast  <= last;
+            viface.if_wlast  <= last_wr;
             viface.if_wdata  <= data;
             @(posedge viface.i_clk);
             while((viface.if_wready & viface.if_wvalid) == 1'b0) begin
@@ -185,7 +188,7 @@ package axi4_driver_pkg;
             input logic [2:0]            awprot
         );
             viface.if_awvalid <= 1'b1;
-            viface.if_awsize <= $clog2(ADDR_WIDTH);
+            viface.if_awsize <= $clog2(ADDR_WIDTH/8);
             viface.if_awburst <= awburst;
             viface.if_awprot  <= awprot;            
             viface.if_awlen   <= awlen;
@@ -224,7 +227,7 @@ package axi4_driver_pkg;
             input logic [2:0]            arprot
         );
             viface.if_arvalid <= 1'b1;
-            viface.if_arsize <= $clog2(ADDR_WIDTH);
+            viface.if_arsize <= $clog2(ADDR_WIDTH/8);
             viface.if_arburst <= arburst;
             viface.if_arprot  <= arprot;            
             viface.if_arlen   <= arlen;
@@ -244,6 +247,7 @@ package axi4_driver_pkg;
             input logic [BUS_WIDTH-1:0] a_tx[],
             input logic[ADDR_WIDTH-1:0] addr = '0,
             input logic[ADDR_WIDTH-1:0] iter,
+            input logic                 last_iter,
             input logic [1:0]           awburst, 
             input logic [7:0]           awlen,
             input logic [2:0]           awprot
@@ -254,12 +258,9 @@ package axi4_driver_pkg;
             @(posedge viface.i_clk);
             for (int j = 0; j < curr_burst; j ++) begin
                 int idx = ((iter*awlen) + j) % tx_pkt_len;
-                logic last = (j == awlen);
-                $display("AAAAAAAA => %h", a_tx[idx]);
-                write_phase(a_tx[idx], last);
-                $display("CCCCC => %h", a_tx[idx]);
+                logic last_wr = (j == awlen);
+                write_phase(a_tx[idx], last_wr, last_iter);
             end
-            $display("DDDD =>",);
             clear(1'b1);
             rsp_phase ();
             viface.if_awid <= viface.if_awid+1;            
@@ -274,7 +275,7 @@ package axi4_driver_pkg;
         );
             logic[ADDR_WIDTH-1:0] init_addr = addr;
             init_addr = handle_addr(init_addr, arburst, arlen);
-            viface.if_arsize = $clog2(ADDR_WIDTH);
+            viface.if_arsize = $clog2(ADDR_WIDTH/8);
             rdaddr_phase(init_addr, arburst, arlen, arprot);
             for (int i = 0; i <= arlen; i ++) begin
                 read_phase();
@@ -296,12 +297,14 @@ package axi4_driver_pkg;
             input logic [7:0]           awlen,
             input logic [2:0]           awprot
         );
+            logic last_iter;
             logic[ADDR_WIDTH-1:0] init_addr = addr;  
             for (int i =0; i < pkt_n; i++ ) begin
                 int iter = (a_tx.size() > (awlen+1))? (a_tx.size() / (awlen+1)) : 1;
                 for (int j = 0; j < iter; j++) begin
+                    last_iter = (j == iter-1); 
                     init_addr = handle_addr(init_addr, awburst, awlen);
-                    transmit_batch(a_tx, addr, j, awburst, awlen, awprot);
+                    transmit_batch(a_tx, addr, j, last_iter, awburst, awlen, awprot);
                     gen_delay();
                 end
                 ag_framegen.frame_gen();
