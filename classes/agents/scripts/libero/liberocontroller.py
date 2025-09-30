@@ -193,7 +193,7 @@ class  LiberoController():
         if self.manifests["inc"]:
             self.log_msg(f"LOG_INF: Load Includes", "LOG_INF")
             f.write("\n\n#Include Paths \n")
-            f.write(f'set_global_include_path_order -paths {" ".join(self.manifests["inc"])}\n') 
+            f.write(f'set_global_include_path_order -paths {{ {" ".join(self.manifests["inc"])} }}\n') 
            
     def loadRTL(self, f):
         self.log_msg(f"LOG_INF: load rtl files", "LOG_INF")
@@ -308,9 +308,11 @@ class  LiberoController():
                         self.log_msg(f"LOG_ERR: Error, pin file has less then 5 columns", "LOG_ERR")        
                         break
                     pname, pstd, ploc, pdir, pvendor = col[:5]
+                    pstd = f"-io_std {pstd}" if not pstd else ""
+                    pname = f"{{{pname}}}" if "[" in pname else f"{pname}"
                     pdir = "OUTPUT" if (pdir == "O") else "INPUT"
                     if pvendor.lower() == 'microsemi':
-                        iopdc.write(f"set_io -pin_name {ploc} -port_name {pname} -fixed true -io_std {pstd} -DIRECTION {pdir}\n")
+                        iopdc.write(f"set_io -pin_name {ploc} -port_name {pname} -fixed true {pstd} -DIRECTION {pdir}\n")
         else:
             self.log_msg(f"LOG_CRT: No PIN found while generating xdc", "LOG_CRT")        
 
