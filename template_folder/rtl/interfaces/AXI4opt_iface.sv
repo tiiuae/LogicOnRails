@@ -1,3 +1,10 @@
+//#####################################################################
+//# File Name : AXI4opt_iface.sv
+//# Purpose : AXI4 + aditional optional Interface
+//# Format : System Verilog
+//# Creation Date : 2025-08
+//# Created By : Matheus Ferronato
+//#####################################################################
 interface AXI4opt_iface 
 #( 
     parameter ADDR_WIDTH = 16,
@@ -34,6 +41,7 @@ logic [1:0]              if_rresp;
 logic                    if_rlast; 
 logic                    if_rvalid;
 logic                    if_rready; 
+logic [USER_WIDTH-1:0]   if_ruser;
 logic [ID_WIDTH-1:0]     if_rid;
 
 // WRITE ADDRESS CHANNEL
@@ -64,6 +72,7 @@ logic                    if_wready;
 logic [1:0]              if_bresp;
 logic                    if_bvalid;
 logic                    if_bready;
+logic [USER_WIDTH-1:0]   if_buser;
 logic [ID_WIDTH-1:0]     if_bid;
 
 
@@ -91,6 +100,7 @@ modport master (
     input  if_rvalid,
     input  if_rlast,
     input  if_rid,
+    input  if_ruser,
     output if_rready, 
 
     output if_awburst,
@@ -117,6 +127,7 @@ modport master (
     input  if_bresp,
     input  if_bvalid,
     input  if_bid,
+    input  if_buser,
     output if_bready
 );
 
@@ -140,6 +151,7 @@ modport slave (
     output if_rvalid,
     output if_rlast,
     output if_rid,
+    output if_ruser,
     input  if_rready, 
 
     input  if_awburst,
@@ -166,6 +178,7 @@ modport slave (
     output if_bresp,
     output if_bvalid,
     output if_bid,
+    output if_buser,
     input  if_bready
 );
 

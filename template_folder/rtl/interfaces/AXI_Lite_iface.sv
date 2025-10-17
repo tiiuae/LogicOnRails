@@ -1,3 +1,10 @@
+//#####################################################################
+//# File Name : AXI_Lite_iface.sv
+//# Purpose : AXI Lite Interface
+//# Format : System Verilog
+//# Creation Date : 2025-08
+//# Created By : Matheus Ferronato
+//#####################################################################
 interface AXI_Lite_iface 
 #( 
     parameter ADDR_WIDTH = 16,
@@ -46,25 +53,25 @@ logic                    if_bready;
 //##################################
 
 modport master (
+    output if_arvalid,
     output if_araddr,
     output if_arprot,
-    output if_arvalid,
     input  if_arready,  
-
-    input  if_rdata,
-    input  if_rresp,
-    input  if_rvalid,
-    output if_rready, 
 
     output if_awaddr,
     output if_awprot,
     output if_awvalid,
     input  if_awready,
 
-    input  if_wdata,
-    input  if_wstrb,
-    input  if_wvalid,
-    output if_wready,
+    input  if_rdata,
+    input  if_rresp,
+    input  if_rvalid,
+    output if_rready, 
+
+    output if_wdata,
+    output if_wstrb,
+    output if_wvalid,
+    input  if_wready,
 
     input  if_bresp,
     input  if_bvalid,
@@ -77,20 +84,20 @@ modport slave (
     input  if_arvalid,
     output if_arready,  
 
-    output if_rdata,
-    output if_rresp,
-    output if_rvalid,
-    input  if_rready, 
-
     input  if_awaddr,
     input  if_awprot,
     input  if_awvalid,
     output if_awready,
 
-    output if_wdata,
-    output if_wstrb,
-    output if_wvalid,
-    input  if_wready,
+    output if_rdata,
+    output if_rresp,
+    output if_rvalid,
+    input  if_rready, 
+
+    input  if_wdata,
+    input  if_wstrb,
+    input  if_wvalid,
+    output if_wready,
 
     output if_bresp,
     output if_bvalid,
