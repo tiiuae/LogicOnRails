@@ -131,7 +131,8 @@ package apb_driver_pkg;
 
         task automatic access_phase ();
             viface.if_penable  <= 1'b1;
-            while(viface.if_pready == 1'b0) begin
+            @(posedge viface.i_clk);
+            while(viface.if_pready !== 1'b1) begin
                 @(posedge viface.i_clk);
             end
             reply = viface.if_prdata;
@@ -203,3 +204,4 @@ package apb_driver_pkg;
 
     endclass
 endpackage
+
