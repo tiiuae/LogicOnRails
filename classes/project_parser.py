@@ -230,7 +230,7 @@ class ProjectParser:
             'modelsim_sim_vopt': (self.modelsim, 'sim_vopt'),
             'modelsim_sim_vsim': (self.modelsim, 'sim_vsim'),
             'modelsim_sim_vlog': (self.modelsim, 'sim_vlog'),
-            'modelsim_sim_vcom': (self.modelsim, 'sim_com'),
+            'modelsim_sim_vcom': (self.modelsim, 'sim_vcom'),
         }
         for env_name, (section, key) in vendor_opts.items():
             os.environ[env_name] = get(section, key)
