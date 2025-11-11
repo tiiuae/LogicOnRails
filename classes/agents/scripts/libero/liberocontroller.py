@@ -255,31 +255,6 @@ class  LiberoController():
     ##      IPs
     ##
     ################################
-#download_core -vlnv {Actel:SystemBuilder:PF_DDR4:1.0.102} -location {www.microsemi.com/repositories/SgCore}
-#create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_DDR4:2.5.111} -component_name {PF_DDR4_C0} -params {\
-#
-#    try:
-#        with open(file_path, "r", encoding="utf-8", errors="ignore") as fh:
-#            for line in fh:
-#                if line.lstrip().startswith("create_and_configure_core"):
-#                    buffer = line
-#                    match = RE_VLNV.search(buffer)
-#                    while not match:
-#                        nxt = fh.readline()
-#                        if not nxt:
-#                            break
-#                        buffer += nxt
-#                        match = RE_VLNV.search(buffer)
-#                    if match:
-#                        return match.group(1).strip()
-#                    break
-#    except FileNotFoundError:
-#        print("Error: file not found -> {}".format(file_path), file=sys.stderr)
-#    return None
-#
-#
-
- 
 
     def downloadIPs(self, f):
         RE_VLNV = re.compile(r"core_vlnv\s*\{\s*([^}]*)\s*\}", re.IGNORECASE)
@@ -558,7 +533,7 @@ class  LiberoController():
         self.loadExt(f)
         self.buildHier(f)
         self.cnfgMSS(f)
-        #self.downloadIPs(f)
+        self.downloadIPs(f)
         self.loadIPs(f)    
         self.loadConstraints(f)  
         self.buildHier(f)
