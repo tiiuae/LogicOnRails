@@ -11,6 +11,7 @@ import subprocess
 import os
 import inspect
 import shutil
+import re
 from enum import IntEnum
 from pathlib import Path
 
@@ -232,13 +233,19 @@ class  LiberoController():
         if self.en.uproc:
             if os.environ.get("ACTEL_UPROC_DIR", "") != "":
                 libero_upro_dir = os.getenv('ACTEL_UPROC_DIR')
-                mss_fd_name = next(d for d in os.listdir(self.path.fw) if os.path.isdir(os.path.join(self.path.fw, d)))
+                if not os.path.isdir(self.path.fw):
+                    self.log_msg(f"LOG_ERR: {self.path.fw} is not a folder", "LOG_ERR")
+                    quit()
+                folder_name = os.path.basename(self.path.fw)
+                if not os.path.isfile(f"{self.path.fw}/{folder_name}.cfg"):
+                    self.log_msg(f"LOG_ERR: {self.path.fw}/{folder_name}.cfg is not a file", "LOG_ERR")
+                    quit()
                 self.log_msg(f"LOG_INF: Running MSS flow", "LOG_INF")
                 self.log_msg(f"LOG_WRN: MSS logic must be inside {self.path.fw}", "LOG_WRN")
                 f.write("\n\n#MSS Flow - code below follows Libero self gen code\n")
                 f.write(f"#MSS Flow - be sure you hav you mss logic inside {self.path.fw}\n")
-                f.write(f'exec {libero_upro_dir} -GENERATE -CONFIGURATION_FILE:{self.path.fw}/{mss_fd_name}/{mss_fd_name}.cfg -OUTPUT_DIR:{self.path.fw}/{mss_fd_name}\n')
-                f.write(f'import_mss_component -file "{self.path.fw}/{mss_fd_name}/{mss_fd_name}.cxz"\n')       
+                f.write(f'exec {libero_upro_dir} -GENERATE -CONFIGURATION_FILE:{self.path.fw}/{folder_name}.cfg -OUTPUT_DIR:{self.path.fw}/\n')
+                f.write(f'import_mss_component -file "{self.path.fw}/{folder_name}.cxz"\n')       
             else:
                 self.log_msg(f"LOG_ERR: when running uproc flow, user must define ACTEL_UPROC_DIR env var", "LOG_ERR")
                 self.log_msg(f"LOG_CRT: maybe: <install path>/libero/<libero ver>/Libero/bin64/pfsoc_mss ?", "LOG_CRT")
@@ -248,6 +255,67 @@ class  LiberoController():
     ##      IPs
     ##
     ################################
+#download_core -vlnv {Actel:SystemBuilder:PF_DDR4:1.0.102} -location {www.microsemi.com/repositories/SgCore}
+#create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_DDR4:2.5.111} -component_name {PF_DDR4_C0} -params {\
+#
+#    try:
+#        with open(file_path, "r", encoding="utf-8", errors="ignore") as fh:
+#            for line in fh:
+#                if line.lstrip().startswith("create_and_configure_core"):
+#                    buffer = line
+#                    match = RE_VLNV.search(buffer)
+#                    while not match:
+#                        nxt = fh.readline()
+#                        if not nxt:
+#                            break
+#                        buffer += nxt
+#                        match = RE_VLNV.search(buffer)
+#                    if match:
+#                        return match.group(1).strip()
+#                    break
+#    except FileNotFoundError:
+#        print("Error: file not found -> {}".format(file_path), file=sys.stderr)
+#    return None
+#
+#
+
+ 
+
+    def downloadIPs(self, f):
+        RE_VLNV = re.compile(r"core_vlnv\s*\{\s*([^}]*)\s*\}", re.IGNORECASE)
+        LIB_TO_REPO = {
+            "SystemBuilder": "SgCore",
+            "DirectCore": "DirectCore",
+            "Firmware": "Firmware",
+        }
+        def map_repo(vlnv: str):
+             for lib, repo in LIB_TO_REPO.items():
+                 if lib in vlnv:
+                     return repo
+             return None
+
+        if self.manifests["ips"]: 
+            ip_path = " ".join(v[len("MICROSEMI:"):] for v in self.manifests["ips"] if v.startswith("MICROSEMI:"))                
+            if ip_path:
+                self.log_msg(f"LOG_INF: load ip download", "LOG_INF")
+                f.write(f"\n\n#IP Download\n")
+                for each_ip in ip_path.split():
+                    with open(each_ip, "r", encoding="utf-8", errors="ignore") as fh:
+                        for line in fh:
+                            if line.lstrip().startswith("create_and_configure_core"):
+                                buffer = line
+                                match = RE_VLNV.search(buffer)
+                                while not match:
+                                    nxt = fh.readline()
+                                    if not nxt:
+                                        break
+                                    buffer += nxt
+                                    match = RE_VLNV.search(buffer)
+                                if match:
+                                    ip_ver = match.group(1).strip()
+                                    ip_repo = map_repo(ip_ver)
+                                break
+                    f.write(f"download_core -vlnv {{{ip_ver}}} -location {{www.microsemi.com/repositories/{ip_repo}}}\n")
 
     def loadIPs(self, f):
         if self.manifests["ips"]: 
@@ -490,6 +558,7 @@ class  LiberoController():
         self.loadExt(f)
         self.buildHier(f)
         self.cnfgMSS(f)
+        #self.downloadIPs(f)
         self.loadIPs(f)    
         self.loadConstraints(f)  
         self.buildHier(f)
