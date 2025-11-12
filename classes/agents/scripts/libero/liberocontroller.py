@@ -316,8 +316,9 @@ class  LiberoController():
         if os.path.exists(path):
             f.write("\n\n#Load FP PDC \n")
             for filename in os.listdir(path):
-                self.cmd.fppdc += f"{path}/{filename} "
-                f.write(f'create_links -fp_pdc {path}/{filename}\n') 
+                if filename.endswith(".pdc"):
+                    self.cmd.fppdc += f"{path}/{filename} "
+                    f.write(f'create_links -fp_pdc {path}/{filename}\n') 
         else:
             self.log_msg(f"LOG_ERR: error no fp folder exist in {path}", "LOG_ERR")
             quit()
@@ -326,8 +327,9 @@ class  LiberoController():
         if os.path.exists(path):
             f.write("\n\n#Load IO PDC \n")
             for filename in os.listdir(path):
-                self.cmd.iopdc += f"{path}/{filename} "
-                f.write(f'create_links -io_pdc {path}/{filename}\n') 
+                if filename.endswith(".pdc"):
+                    self.cmd.iopdc += f"{path}/{filename} "
+                    f.write(f'create_links -io_pdc {path}/{filename}\n') 
         else:
             self.log_msg(f"LOG_ERR: error no io folder exist in {path}", "LOG_ERR")
             quit()
