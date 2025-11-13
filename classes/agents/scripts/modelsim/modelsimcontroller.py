@@ -170,7 +170,7 @@ class ModelSimController():
             comp_files = glob.glob(f"{self.path.work}/**/*.v*", recursive=True)
             comp_files += glob.glob(f"{self.path.micrsm}/**/*.v*", recursive=True)
             comp_files += glob.glob(f"{self.path.compnt}/**/*.v*", recursive=True)
-            comp_files = [p for p in comp_files if ("/test/" not in p) and ("/Stimulus/" not in p) and ("coreparameters" not in p)]
+            comp_files = [p for p in comp_files if ("/test/" not in p) and ("/Stimulus/" not in p) and ("coreparameters" not in p) and ("syn_comps.v" not in p)]
             if comp_files:
                 f.write(f'\n\n#Microsemi IPs Simulation\n')
                 for each_c in comp_files:
