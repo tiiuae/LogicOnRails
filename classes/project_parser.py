@@ -227,6 +227,7 @@ class ProjectParser:
             'verilator_opt': (self.verilator, 'verilator_warn_options'),
             'questa_sim_opt': (self.questa, 'sim_opt'),
             # ModelSim
+            'modelsim_skip_vopt': (self.modelsim, 'skip_vopt'),
             'modelsim_sim_vopt': (self.modelsim, 'sim_vopt'),
             'modelsim_sim_vsim': (self.modelsim, 'sim_vsim'),
             'modelsim_sim_vlog': (self.modelsim, 'sim_vlog'),

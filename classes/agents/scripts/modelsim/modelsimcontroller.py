@@ -89,6 +89,7 @@ class ModelSimController():
         self.ext_en = (os.getenv('ext_modules') == "on")
         self.log_en = (os.getenv('log') == "on")
         self.keep_en = (os.getenv('keep') == "on")
+        self.ext_usr_skip_opt = (os.getenv('modelsim_skip_vopt') == "on")
         self.acc_lvl = os.getenv('access')
         self.msg_lvl = LogLevel[os.getenv('message_lvl')]
         self.msg_str = os.getenv('message_lvl')
@@ -348,9 +349,12 @@ class ModelSimController():
     ################################ 
 
     def loadOpt(self, f):
-        self.log_msg("LOG_INF: generating vopt command", "LOG_INF")
-        f.write("\n\n#Optimization Flow\n")
-        f.write(f"vopt {self.acc_cmd} {self.tb_top} {self.ip_cmd} {self.def_list} +test={os.getenv('default_test')} {self.ext_usr_vopt_opt} -o tb_snapshot\n")
+        if self.ext_usr_skip_opt:
+            self.log_msg("LOG_WRN: skiping vopt", "LOG_WRN")
+        else:    
+            self.log_msg("LOG_INF: generating vopt command", "LOG_INF")
+            f.write("\n\n#Optimization Flow\n")
+            f.write(f"vopt {self.acc_cmd} {self.tb_top} {self.ip_cmd} {self.def_list} +test={os.getenv('default_test')} {self.ext_usr_vopt_opt} -o tb_snapshot\n")
 
     ###############################
     ##      SIM
@@ -360,7 +364,10 @@ class ModelSimController():
     def loadSim(self, f):
         self.log_msg("LOG_INF: generating vsim command", "LOG_INF")
         f.write("\n\n#Simulation Flow\n")
-        f.write(f"vsim -t 1ps tb_snapshot {self.cov_sim} {self.vpi_cmd} {self.pli_cmd} {self.ext_usr_vsim_opt}\n")
+        if self.ext_usr_skip_opt:
+            f.write(f"vsim -t 1ps {self.acc_cmd} {self.tb_top} {self.ip_cmd} {self.def_list} +test={os.getenv('default_test')} {self.cov_sim} {self.vpi_cmd} {self.pli_cmd} {self.ext_usr_vsim_opt}\n")
+        else:
+            f.write(f"vsim -t 1ps tb_snapshot {self.cov_sim} {self.vpi_cmd} {self.pli_cmd} {self.ext_usr_vsim_opt}\n")
         f.write(f"set TOP_LEVEL_NAME {self.tb_top}\n")
         f.write(f"view structure\n")
         f.write(f"view signals\n")
