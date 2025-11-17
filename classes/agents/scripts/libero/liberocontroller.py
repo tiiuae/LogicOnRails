@@ -514,8 +514,20 @@ class  LiberoController():
         f.write(f"\n\n#Open project\n")
         f.write(f'open_project {self.path.fprj}\n') 
 
+    def configTool(self, f, act):
+        conf_dic = {
+            "SYNTHESIZE" : self.mcrsemi.opt_synt, 
+            "PLACEROUTE" : self.mcrsemi.opt_rout,
+            "VERIFYTIMING" : self.mcrsemi.opt_sta, 
+            "GENERATEPROGRAMMINGDATA" : self.mcrsemi.opt_bit,    
+        }
+        if conf_dic[act]:
+            self.log_msg(f"LOG_INF: Loading {act} settings", "LOG_INF")
+            f.write(f"\n\n#CREATING SETTINGS FOR {act}\n")
+            f.write(f'configure_tool -name {{{act}}} {conf_dic[act]} \n') 
+
     def loadRunTool(self, f, act):
-        self.log_msg(f"LOG_INF: Loading {act} settings", "LOG_INF")
+        self.log_msg(f"LOG_INF: Loading {act}", "LOG_INF")
         f.write(f"\n\n#Running {act}\n")
         f.write(f'run_tool -name {act}\n') 
 
@@ -560,6 +572,7 @@ class  LiberoController():
         f = open(self.path.f, "a")
         self.logfile = open(self.path.log, "a")
         self.loadPrj(f)
+        self.configTool(f, "PLACEROUTE")
         self.loadRunTool(f, "PLACEROUTE")
         self.handleSave(f) 
         self.logfile.close()
