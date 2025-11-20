@@ -259,7 +259,9 @@ class ProjectParser:
                 'libero_pr_opt': 'pr_opt',
                 'libero_sim_opt': 'sim_opt',
                 'libero_sta_opt': 'sta_opt',
-                'libero_sta_bit': 'bit_opt',
+                'libero_prebit_opt': 'prebit_opt',
+                'libero_bit_opt': 'bit_opt',
+                'libero_up_opt': 'up_opt',
             }),
             (self.vivado, {
                 'vivado_device': 'vivado_device',

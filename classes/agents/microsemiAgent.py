@@ -34,17 +34,11 @@ class MicrosemiAgent():
 
         #LOG FILES
         self.args = args
-        self.creationLogFile = ""
+        self.creationLogFile = f"{self.reports}/{self.log_filename}"
         self.synthLogFile    = f"{self.args.path}/{self.args.module_name}/synthesis/synlog/{self.args.module_name}_compiler.srr"
-
-        #TO BE REMOVED
-        self.create = "create.tcl"
-        self.synth = "synth.sh"
-        self.implementation = "implementation.tcl"
-        self.bitstream = "bitstream.tcl"
-        self.sta = "sta.tcl"
-        self.simfile = "sim.tcl"
-
+        self.route1LogFile   = f"{self.args.path}/{self.args.module_name}/designer/{self.args.module_name}/{self.args.module_name}_layout_log.log"
+        self.route2LogFile   = f"{self.args.path}/{self.args.module_name}/designer/{self.args.module_name}/{self.args.module_name}_compile_netlist.log"
+        self.bitLogFile      = f"{self.args.path}/{self.args.module_name}/designer/{self.args.module_name}/{self.args.module_name}_fp/{self.args.module_name}_generateBitstream.log"
 
     def runCreate(self):
         self.liberoCtrl.createPrj()
@@ -52,7 +46,6 @@ class MicrosemiAgent():
             subprocess.call(["libero", f"SCRIPT:{self.script_filename}"])
         self.liberoCtrl.cleanEnv()
         self.liberoCtrl.printLogs(self.creationLogFile)
-        #subprocess.call(["libero", f"SCRIPT:{self.folder}/{self.create}"])
 
     def runSynth(self):
         self.liberoCtrl.createSynth()
@@ -61,31 +54,36 @@ class MicrosemiAgent():
         self.liberoCtrl.cleanEnv()
         print(self.synthLogFile)
         self.liberoCtrl.printLogs(self.synthLogFile)
-        #subprocess.call(["/bin/bash", f"{self.folder}/{self.synth}"])
     
     def runRoute(self):
         self.liberoCtrl.createRoute()
         if not (self.scripts_only):
             subprocess.call(["libero", f"SCRIPT:{self.script_filename}"])
         self.liberoCtrl.cleanEnv()
-        self.liberoCtrl.printLogs()
-        #subprocess.call(["libero", f"SCRIPT:{self.folder}/{self.implementation}"])
+        self.liberoCtrl.printLogs(self.route1LogFile)
+        self.liberoCtrl.printLogs(self.route2LogFile)
 
     def runBit(self):
         self.liberoCtrl.createBitStream()
         if not (self.scripts_only):
             subprocess.call(["libero", f"SCRIPT:{self.script_filename}"])
         self.liberoCtrl.cleanEnv()
-        self.liberoCtrl.printLogs()
-        #subprocess.call(["libero", f"SCRIPT:{self.folder}/{self.bitstream}"])
+        self.liberoCtrl.printLogs(self.bitLogFile)
     
     def runSta(self):
         self.liberoCtrl.createSTA()
         if not (self.scripts_only):
             subprocess.call(["libero", f"SCRIPT:{self.script_filename}"])
         self.liberoCtrl.cleanEnv()
-        self.liberoCtrl.printLogs()
-        #subprocess.call(["libero", f"SCRIPT:{self.folder}/{self.sta}"])
+        self.liberoCtrl.printLogs("")
+
+    def runUp(self):
+        self.liberoCtrl.createUP()
+        if not (self.scripts_only):
+            subprocess.call(["libero", f"SCRIPT:{self.script_filename}"])
+        self.liberoCtrl.cleanEnv()
+        self.liberoCtrl.printLogs("")
+
 
     def runSim(self):
         print("TODO")

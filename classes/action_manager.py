@@ -84,6 +84,14 @@ class ActionManager:
     def jtag(self) -> None:
         self.edaCtrl.agtVendor.runJtag()
 
+    def up(self) -> None:
+        if (self.args.vendor == "microsemi"):
+            self.edaCtrl.agtVendor.runUp()
+        else:
+            """Placeholder for future JTAG or GUI upload commands."""
+            print('this command is only valid for microsemi flow, skipping')
+
+
     def report(self) -> None:
         self.edaCtrl.agtVendor.runReport()
 
@@ -112,9 +120,6 @@ class ActionManager:
         self.delete()
         self.start()
 
-    def up(self) -> None:
-        """Placeholder for future JTAG or GUI upload commands."""
-        print('to be updated use either rls jtag or gui, skipping')
 
     def create(self) -> None:
         """Create a new project directory and initialise vendor data."""

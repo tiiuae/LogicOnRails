@@ -100,7 +100,9 @@ class  LiberoController():
         self.mcrsemi.opt_rout = os.getenv('libero_pr_opt')
         self.mcrsemi.opt_sim = os.getenv('libero_sim_opt')
         self.mcrsemi.opt_sta = os.getenv('libero_sta_opt')
-        self.mcrsemi.opt_bit = os.getenv('libero_bit_bit')
+        self.mcrsemi.opt_prebit = os.getenv('libero_prebit_opt')
+        self.mcrsemi.opt_bit = os.getenv('libero_bit_opt')
+        self.mcrsemi.opt_up = os.getenv('libero_up_opt')
 
         self.defs.synth = os.getenv('synth_def')
         self.defs.sim = os.getenv('sim_def')
@@ -484,22 +486,23 @@ class  LiberoController():
     def printLnIf(self, trgtFile, lvl, trgtStr):
         if (int(LogLevel[lvl]) >= int(self.lvl.msg) ):            
             if (lvl == "LOG_WRN"):
-                    self.log_msg(f"LOG_WRN: SHOWING WARNINGS", "LOG_WRN", wr_file=False)
+                    self.log_msg(f"LOG_WRN: SHOWING WARNINGS FROM {trgtFile}", "LOG_WRN", wr_file=False)
             elif (lvl == "LOG_CRT"):
-                    self.log_msg(f"LOG_CRT: SHOWING CRITICAL WARNINGS", "LOG_CRT", wr_file=False)
+                    self.log_msg(f"LOG_CRT: SHOWING CRITICAL WARNINGS FROM {trgtFile}", "LOG_CRT", wr_file=False)
             elif (lvl == "LOG_ERR"):
-                    self.log_msg(f"LOG_ERR: SHOWING ERRORS", "LOG_ERR", wr_file=False)
+                    self.log_msg(f"LOG_ERR: SHOWING ERRORS FROM {trgtFile}", "LOG_ERR", wr_file=False)
             f = open(trgtFile, "r")
             for line in f:
-                if trgtStr in line:
-                    self.log_msg(self.msg_giveColor(line, lvl).replace("\n", ""), lvl, wr_file=False)
+                for each_str in trgtStr:
+                    if each_str in line:
+                        self.log_msg(self.msg_giveColor(line, lvl).replace("\n", ""), lvl, wr_file=False)
                     
     def printLogs(self, rpt):
         if (self.en.log):
             if os.path.exists(rpt):
-                self.printLnIf(rpt, "LOG_WRN", "@W")
-                self.printLnIf(rpt, "LOG_CRT", "@N")
-                self.printLnIf(rpt, "LOG_ERR", "@E")
+                self.printLnIf(rpt, "LOG_WRN", ["@W", "Warning:"])
+                self.printLnIf(rpt, "LOG_CRT", ["@N", "critical warning:"])
+                self.printLnIf(rpt, "LOG_ERR", ["@E", "Error:"])
             else:
                 self.log_msg(f"LOG_ERR: Report path {rpt} does not exist", "LOG_ERR", wr_file=False)
 
@@ -514,12 +517,28 @@ class  LiberoController():
         f.write(f"\n\n#Open project\n")
         f.write(f'open_project {self.path.fprj}\n') 
 
+    def loadArrayData(self,f):
+        self.log_msg(f"LOG_INF: generating programming data", "LOG_INF")
+        f.write(f"\n\n#CREATING PROGRAMMING DATA\n")
+        f.write(f'run_tool -name {{GENERATEPROGRAMMINGDATA}}  \n') 
+
+
+    def loadPre(self, f, act):
+        conf_dic = {
+            "GENERATEPROGRAMMINGFILE" : self.mcrsemi.opt_prebit    
+        }
+        if conf_dic[act]:
+            self.log_msg(f"LOG_WRN: Loading {act} pre settings", "LOG_WRN")
+            f.write(f"\n\n#CREATING PRE SETTINGS FOR {act}\n")
+            f.write(f'{conf_dic[act]} \n') 
+
     def configTool(self, f, act):
         conf_dic = {
             "SYNTHESIZE" : self.mcrsemi.opt_synt, 
             "PLACEROUTE" : self.mcrsemi.opt_rout,
             "VERIFYTIMING" : self.mcrsemi.opt_sta, 
-            "GENERATEPROGRAMMINGDATA" : self.mcrsemi.opt_bit,    
+            "GENERATEPROGRAMMINGFILE" : self.mcrsemi.opt_bit,    
+            "PROGRAMDEVICE" : self.mcrsemi.opt_up,    
         }
         if conf_dic[act]:
             self.log_msg(f"LOG_INF: Loading {act} settings", "LOG_INF")
@@ -591,6 +610,17 @@ class  LiberoController():
         f = open(self.path.f, "a")
         self.logfile = open(self.path.log, "a")
         self.loadPrj(f)
-        self.loadRunTool(f, "GENERATEPROGRAMMINGDATA")
+        self.loadArrayData(f)
+        self.loadPre(f, "GENERATEPROGRAMMINGFILE")
+        self.loadRunTool(f, "GENERATEPROGRAMMINGFILE")
+        self.handleSave(f) 
+        self.logfile.close()
+
+    def createUp(self):
+        if os.path.exists(self.path.f): os.remove(self.path.f)
+        f = open(self.path.f, "a")
+        self.logfile = open(self.path.log, "a")
+        self.loadPrj(f)
+        self.loadRunTool(f, "PROGRAMDEVICE")
         self.handleSave(f) 
         self.logfile.close()
