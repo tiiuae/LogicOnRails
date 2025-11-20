@@ -108,6 +108,8 @@ class ActionManager:
             'c': self.create,
             's': self.synth,
             'r': self.route,
+            't': self.sta,
+            'b': self.bit,
             'd': self.prj,
         }
         for flag in self.args.action:
