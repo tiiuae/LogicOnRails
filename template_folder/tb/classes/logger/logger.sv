@@ -91,7 +91,7 @@ package logger_pkg;
                 this.curr_msg = "";
                 this.curr_msg = (color_en == 1'b1)? gen_color(msg_lvl.name(), t_msg_clr'(msg_lvl)) : "";
                 this.curr_msg = $sformatf("%s%s", this.curr_msg, gen_timestamp(timestamp_en, color_en));
-                this.curr_msg = $sformatf("%s%s\n", this.curr_msg, str);
+                this.curr_msg = $sformatf("%s%s", this.curr_msg, str);
                 $display(this.curr_msg);            
             end 
         endfunction 

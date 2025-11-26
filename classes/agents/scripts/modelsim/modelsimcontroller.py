@@ -114,7 +114,8 @@ class ModelSimController():
         self.microsemi_ip_libs = " -L polarfire "
 
         self.def_testname = f"+define+DEFAULT_TEST=\"{os.getenv('default_test')}\""
-        self.def_edatool = f"+define+SIMULATION +define+MODELSIM"
+        self.def_gui = "+define+GUI " if (self.gui_en) else "" 
+        self.def_edatool = f"+define+SIMULATION +define+MODELSIM {self.def_gui}"
         self.def_msglvl = f"+define+MESSAGE_LEVEL={self.msg_str}"
         self.def_list = f" {self.def_testname} {self.def_edatool} {self.def_msglvl} {os.getenv('synth_def')} {os.getenv('sim_def')}"
 
