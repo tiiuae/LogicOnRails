@@ -582,6 +582,7 @@ class  LiberoController():
         f = open(self.path.f, "a")
         self.logfile = open(self.path.log, "a")
         self.loadPrj(f)
+        self.configTool(f, "SYNTHESIZE")
         self.loadRunTool(f, "SYNTHESIZE")
         self.handleSave(f) 
         self.logfile.close()
