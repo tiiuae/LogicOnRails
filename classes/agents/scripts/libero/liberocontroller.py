@@ -444,13 +444,13 @@ class  LiberoController():
     def loadDefs(self, f):
         self.log_msg(f"LOG_INF: configuring defines", "LOG_INF")
         syndef = f"{{SYNPLIFY_OPTIONS:"
-        optstr = f"set_option -hdl_param -set SYNTHESIS;"
+        optstr = f"set_option -hdl_define -set SYNTHESIS;"
         append_cmd = ""
         self.cmd.defs += f" {self.defs.synth.replace('+define+','  ').replace('+',' ').strip()}"
         self.cmd.defs = self.cmd.defs
         f.write(f"\n\n#Generating defines\n")
         for each_define in self.cmd.defs.split():
-            optstr += f'set_option -hdl_param -set {each_define};'
+            optstr += f'set_option -hdl_define -set {each_define};'
         syndef += optstr
         f.write(f'configure_tool -name {{SYNTHESIZE}} -params {{BLOCK_MODE:false}} -params {{CLOCK_GATE_ENABLE:false}} -params {{RETIMING:true}} -params {syndef}}}\n')
 
