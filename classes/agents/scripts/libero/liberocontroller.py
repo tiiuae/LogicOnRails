@@ -428,11 +428,17 @@ class  LiberoController():
     ################################ 
 
     def loadConstrMng(self, f):
+        iopdc = f''
+        fppdc = f''
+        for each_file in self.cmd.iopdc.split():
+            iopdc += f" -file {{{each_file}}}"
+        for each_file in self.cmd.fppdc.split():
+            fppdc += f" -file {{{each_file}}}"
         self.log_msg(f"LOG_INF: Loading Constraint Manager settings", "LOG_INF")
         f.write(f"\n\n#Constraint Manager settings\n")
         f.write(f'run_tool -name {{CONSTRAINT_MANAGEMENT}}\n') 
         f.write(f'organize_tool_files -tool {{SYNTHESIZE}} -file {self.path.sdc}  -input_type {{constraint}} \n')
-        f.write(f'organize_tool_files -tool {{PLACEROUTE}} -file {self.path.sdc} -file {self.cmd.iopdc} -file {self.cmd.fppdc} -input_type {{constraint}} \n')
+        f.write(f'organize_tool_files -tool {{PLACEROUTE}} -file {self.path.sdc} {iopdc} {fppdc} -input_type {{constraint}} \n')
         f.write(f'organize_tool_files -tool {{VERIFYTIMING}} -file {self.path.sdc} -input_type {{constraint}} \n')
         f.write(f'derive_constraints_sdc\n')
     
@@ -574,7 +580,7 @@ class  LiberoController():
         self.loadTb(f)     
         self.loadConstrMng(f)   
         self.loadDefs(f)
-        self.handleSave(f)      
+        self.handleSave(f)   
         self.logfile.close()
 
     def createSynth(self):
