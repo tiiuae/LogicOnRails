@@ -78,6 +78,8 @@ class  LiberoController():
 
         self.path.prj = f"{os.getenv('prj_path')}/{self.cnfg.module_name}"
         self.path.fprj = f"{self.path.prj}/{self.cnfg.module_name}.prjx"
+        self.path.prj_ips = f"{self.path.prj}/component/work"
+        self.path.prj_sd = f"{self.path.prj}/component/User/Private"
         self.path.wave = os.getenv('wave')
         self.path.log = os.getenv('libero_log_name')
         self.path.f = os.getenv('libero_script_name')
@@ -91,6 +93,9 @@ class  LiberoController():
         self.path.fw = os.getenv('firmware_path')
         self.path.rpt_time = f"{self.path.rprt}/{self.cnfg.module_name}.time.rpt"
         self.path.bit = f"{self.path.prj}/{self.cnfg.module_name}.bit"
+        self.path.ip_manifest = f'{os.getenv("source_ips")}'
+        self.path.ignore_ip = f'{os.path.dirname(os.getenv("source_ips"))}/manifest_ignore.f'
+
 
         self.mcrsemi.fam = os.getenv('libero_family')
         self.mcrsemi.die = os.getenv('libero_die')
@@ -514,6 +519,101 @@ class  LiberoController():
 
 
     ###############################
+    ##      KEEP
+    ##
+    ################################ 
+
+    def getNewIPList(self, path):
+        return [
+            name
+            for name in os.listdir(path)
+            if os.path.isdir(os.path.join(path, name))
+        ]
+
+    ########### CHECK NEW IPS
+
+    def storeIPS(self, f, iplist):
+        ip_path = " ".join(v[len("MICROSEMI:"):] for v in self.manifests["ips"] if v.startswith("MICROSEMI:"))    
+        ip_path = ip_path.split()   
+        extra_ip = []         
+        if iplist:
+            ip_base_path = os.path.dirname(ip_path[0]) 
+            self.log_msg(f"LOG_INF: Storing work dir ips", "LOG_INF")
+            f.write(f"\n\n#Storing IPs from work dir\n")
+            for each_ip in iplist:
+                idx = next((i for i, s in enumerate(ip_path) if f"{each_ip}.tcl" in s), -1)
+                if idx >= 0:
+                    f.write(f"export_component_to_tcl -component {{{each_ip}}} -library {{work}} -package {{}} -file {{{ip_path[idx]}}} -recursive 0 -folder {{}} -include_pres_data 0\n")
+                else:
+                    extra_ip.append(each_ip)
+        return extra_ip, ip_base_path 
+        
+    def storeSmartDesignLeafs(self, f, sdlist):
+        sd_path = " ".join(v[len("MICROSEMI:"):] for v in self.manifests["ips"] if v.startswith("MICROSEMI:"))    
+        sd_path = sd_path.split()   
+        extra_sd = []     
+        if sdlist:
+            self.log_msg(f"LOG_INF: Storing user dir sd", "LOG_INF")
+            f.write(f"\n\n#Storing SDs from User dir\n")
+            for each_sd in sdlist:
+                idx = next((i for i, s in enumerate(sd_path) if f"{each_sd}.tcl" in s), -1)
+                if idx < 0:
+                    extra_sd.append(each_sd)
+        return extra_sd
+
+    ########### STORE NEW IPS
+
+    def storeNewIps(self, f, extra_ip, ip_base_path):
+        content = []
+        new_manifest = []
+        try:
+            with open(self.path.ignore_ip, "r", encoding="utf-8") as fi:
+                self.log_msg(f"LOG_INF: reading manifest ignore {self.path.ignore_ip}", "LOG_INF")
+                content = fi.read()
+        except FileNotFoundError:
+            self.log_msg(f"LOG_CRT: {self.path.ignore_ip} does not exist, may be created", "LOG_CRT")
+        f.write(f"\n\n#Storing new ips\n")
+        for each_ip in extra_ip:
+            if not each_ip in content:
+                status = input(f"would you like store the new ip {each_ip}? (y/n/i [ignore])\n")
+                if (status == "y"):
+                    self.log_msg(f"LOG_WRN: Storing new ip {each_ip}", "LOG_WRN")
+                    f.write(f"export_component_to_tcl -component {{{each_ip}}} -library {{work}} -package {{}} -file {{{ip_base_path}/{each_ip}.tcl}} -recursive 0 -folder {{}} -include_pres_data 0\n")
+                    new_manifest.append(f"{ip_base_path}/{each_ip}.tcl")
+                elif(status  == "i"):
+                    self.log_msg(f"LOG_WRN: adding {each_ip} to {self.path.ignore_ip} ignore manifest, this ip won't be informed again", "LOG_WRN")
+                    with open(self.path.ignore_ip, "a", encoding="utf-8") as fa:
+                        fa.write(f"{each_ip}\n")
+                else:
+                    print(f"{each_ip} skipped")
+        return new_manifest
+
+    def handleNewIpsManifest(self, new_manifest):
+        for each_ip in new_manifest:
+            with open(self.path.ip_manifest, "a", encoding="utf-8") as f:
+                f.write(f"MICROSEMI:{each_ip}\n")
+
+    def handleNewIps(self, f, extra_ip, ip_base_path):
+        new_manifest = self.storeNewIps(f, extra_ip, ip_base_path)
+        self.handleNewIpsManifest(new_manifest)
+
+    ########### SMART DESIGN CHECK
+
+    def createExtraSDScripts(self, extra_sd):
+        print(f"Please review {extra_sd}")
+
+    def loadKeep(self, f):
+        extra_ip_status = dict()
+        new_ip_list = self.getNewIPList(self.path.prj_ips)
+        new_sd_list = self.getNewIPList(self.path.prj_sd)
+        extra_ip, ip_base_path = self.storeIPS(f, new_ip_list)
+        extra_sd = self.storeSmartDesignLeafs(f, new_sd_list)
+        self.handleNewIps(f, extra_ip, ip_base_path)
+        self.createExtraSDScripts(extra_sd)
+
+
+
+    ###############################
     ##      ACT
     ##
     ################################
@@ -629,5 +729,14 @@ class  LiberoController():
         self.logfile = open(self.path.log, "a")
         self.loadPrj(f)
         self.loadRunTool(f, "PROGRAMDEVICE")
+        self.handleSave(f) 
+        self.logfile.close()
+
+    def createKeep(self):
+        if os.path.exists(self.path.f): os.remove(self.path.f)
+        f = open(self.path.f, "a")
+        self.logfile = open(self.path.log, "a")
+        self.loadPrj(f)
+        self.loadKeep(f)
         self.handleSave(f) 
         self.logfile.close()

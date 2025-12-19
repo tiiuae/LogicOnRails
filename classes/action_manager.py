@@ -66,23 +66,17 @@ class ActionManager:
     def bit(self) -> None:
         self.edaCtrl.agtVendor.runBit()
 
-    def sta(self) -> None:
-        self.edaCtrl.agtVendor.runSta()
-
-    def netlist(self) -> None:
-        self.edaCtrl.agtVendor.runNetlist()
-
-    def sim(self) -> None:
-        self.edaCtrl.agtSim.runSim()
-
     def prj(self) -> None:
         self.edaCtrl.agtVendor.runPrj()
+
+    def keep(self) -> None:
+        self.edaCtrl.agtVendor.runKeep()
 
     def lint(self) -> None:
         self.edaCtrl.agtLint.runLint()
 
-    def jtag(self) -> None:
-        self.edaCtrl.agtVendor.runJtag()
+    def sim(self) -> None:
+        self.edaCtrl.agtSim.runSim()
 
     def up(self) -> None:
         if (self.args.vendor == "microsemi"):
@@ -90,6 +84,17 @@ class ActionManager:
         else:
             """Placeholder for future JTAG or GUI upload commands."""
             print('this command is only valid for microsemi flow, skipping')
+
+
+    def sta(self) -> None:
+        self.edaCtrl.agtVendor.runSta()
+
+    def netlist(self) -> None:
+        self.edaCtrl.agtVendor.runNetlist()
+
+    def jtag(self) -> None:
+        self.edaCtrl.agtVendor.runJtag()
+
 
 
     def report(self) -> None:
