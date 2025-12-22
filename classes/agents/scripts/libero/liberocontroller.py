@@ -80,6 +80,7 @@ class  LiberoController():
         self.path.fprj = f"{self.path.prj}/{self.cnfg.module_name}.prjx"
         self.path.prj_ips = f"{self.path.prj}/component/work"
         self.path.prj_sd = f"{self.path.prj}/component/User/Private"
+        self.path.prj_rtl = f"{self.path.prj}/hdl"
         self.path.wave = os.getenv('wave')
         self.path.log = os.getenv('libero_log_name')
         self.path.f = os.getenv('libero_script_name')
@@ -523,14 +524,14 @@ class  LiberoController():
     ##
     ################################ 
 
-    def getNewIPList(self, path):
+    def getNewFolderList(self, path):
         return [
             name
             for name in os.listdir(path)
             if os.path.isdir(os.path.join(path, name))
         ]
 
-    ########### CHECK NEW IPS
+    ########### STORE NEW IPS
 
     def storeIPS(self, f, iplist):
         ip_path = " ".join(v[len("MICROSEMI:"):] for v in self.manifests["ips"] if v.startswith("MICROSEMI:"))    
@@ -561,7 +562,7 @@ class  LiberoController():
                     extra_sd.append(each_sd)
         return extra_sd
 
-    ########### STORE NEW IPS
+    ########### CHECK NEW IPS
 
     def storeNewIps(self, f, extra_ip, ip_base_path):
         content = []
@@ -615,13 +616,15 @@ class  LiberoController():
 
     def loadKeep(self, f):
         extra_ip_status = dict()
-        new_ip_list = self.getNewIPList(self.path.prj_ips)
-        new_sd_list = self.getNewIPList(self.path.prj_sd)
+        new_ip_list = self.getNewFolderList(self.path.prj_ips)
+        new_sd_list = self.getNewFolderList(self.path.prj_sd)
+        new_rtl_list = os.listdir(self.path.prj_rtl)
         extra_ip, ip_base_path = self.storeIPS(f, new_ip_list)
         extra_sd = self.storeSmartDesignLeafs(f, new_sd_list)
         self.handleNewIps(f, extra_ip, ip_base_path)
         self.createExtraSDScripts(extra_sd, ip_base_path)
-
+        for each_rtl in new_rtl_list:
+            self.log_msg(f"LOG_WRN: located rtl file {each_rtl} in /hdl folder, be sure to store the file before deleting the project", "LOG_WRN")
 
 
     ###############################
