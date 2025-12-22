@@ -84,6 +84,12 @@ class MicrosemiAgent():
         self.liberoCtrl.cleanEnv()
         self.liberoCtrl.printLogs("")
 
+    def runKeep(self):
+        self.liberoCtrl.createKeep()
+        if not (self.scripts_only):
+            subprocess.call(["libero", f"SCRIPT:{self.script_filename}"])
+        self.liberoCtrl.cleanEnv()
+        self.liberoCtrl.printLogs("")
 
     def runSim(self):
         print("TODO")

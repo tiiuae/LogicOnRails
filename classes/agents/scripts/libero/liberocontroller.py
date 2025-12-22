@@ -585,7 +585,7 @@ class  LiberoController():
                     with open(self.path.ignore_ip, "a", encoding="utf-8") as fa:
                         fa.write(f"{each_ip}\n")
                 else:
-                    print(f"{each_ip} skipped")
+                    self.log_msg(f"LOG_INF: {each_ip} skipped", "LOG_INF")
         return new_manifest
 
     def handleNewIpsManifest(self, new_manifest):
@@ -599,8 +599,19 @@ class  LiberoController():
 
     ########### SMART DESIGN CHECK
 
-    def createExtraSDScripts(self, extra_sd):
-        print(f"Please review {extra_sd}")
+    def createExtraSDScripts(self, extra_sd, ip_base_path):
+        for each_sd in extra_sd:
+            status = input(f"would you like store the new sd {each_sd}? (y/n)\n")
+            if (status == "y"):
+                path = input(f"provide path for rtl source of sd component {each_sd} (based on project root dir):\n")
+                with open(f"{ip_base_path}/{each_sd}.tcl", "a", encoding="utf-8") as f:
+                    f.write(f"# created by LogicOnRails\n")
+                    f.write(f"create_hdl_core -file {{../../{path}}} -module {{{each_sd}}} -library {{work}} -package {{}}\n")
+                with open(self.path.ip_manifest, "a", encoding="utf-8") as f:
+                    f.write(f"MICROSEMI:{ip_base_path}/{each_sd}.tcl\n")
+            else:
+                self.log_msg(f"LOG_INF: {each_sd} skipped", "LOG_INF")
+
 
     def loadKeep(self, f):
         extra_ip_status = dict()
@@ -609,7 +620,7 @@ class  LiberoController():
         extra_ip, ip_base_path = self.storeIPS(f, new_ip_list)
         extra_sd = self.storeSmartDesignLeafs(f, new_sd_list)
         self.handleNewIps(f, extra_ip, ip_base_path)
-        self.createExtraSDScripts(extra_sd)
+        self.createExtraSDScripts(extra_sd, ip_base_path)
 
 
 
