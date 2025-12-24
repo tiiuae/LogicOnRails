@@ -182,7 +182,7 @@ class  QuartusController():
         f.write(f"project_new {self.path.prj}\n")
         f.write(f"set_global_assignment -name ORIGINAL_QUARTUS_VERSION {self.quartus.ver}\n")
         f.write(f"set_global_assignment -name DEVICE {self.quartus.dev}\n")
-        f.write(f"set_global_assignment -name FAMILY {self.quartus.fam}\n")
+        f.write(f'set_global_assignment -name FAMILY "{self.quartus.fam}"\n')
 
     ###############################
     ##      CREATE DEFS

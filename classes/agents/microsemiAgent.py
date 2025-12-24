@@ -7,6 +7,8 @@
 # Description:    Top level class - Microsemi 
 # =============================================================================
 
+import shutil
+
 import subprocess
 import inspect
 import os
@@ -40,11 +42,25 @@ class MicrosemiAgent():
         self.route2LogFile   = f"{self.args.path}/{self.args.module_name}/designer/{self.args.module_name}/{self.args.module_name}_compile_netlist.log"
         self.bitLogFile      = f"{self.args.path}/{self.args.module_name}/designer/{self.args.module_name}/{self.args.module_name}_fp/{self.args.module_name}_generateBitstream.log"
 
+
+    def loadIdentify(self):
+        prj_dir = f"{self.args.path}/{self.args.module_name}"
+        synth_dir = f"{prj_dir}/synthesis"
+        ident_dir = f"{self.args.constraints}/identify" 
+        folder = f"{ident_dir}/synthesis"
+        if (os.getenv('logic_analyser') == "on"):
+            if (os.path.isdir(ident_dir)):
+                if (os.path.isdir(synth_dir)):
+                    shutil.rmtree(synth_dir)
+                print(f"{ident_dir}",prj_dir )
+                shutil.copytree(f"{folder}", f"{prj_dir}/synthesis")
+
     def runCreate(self):
         self.liberoCtrl.createPrj()
         if not (self.scripts_only):
             subprocess.call(["libero", f"SCRIPT:{self.script_filename}"])
         self.liberoCtrl.cleanEnv()
+        self.loadIdentify()
         self.liberoCtrl.printLogs(self.creationLogFile)
 
     def runSynth(self):

@@ -7,16 +7,17 @@ system:
     keep           : "off"
 
 prj:
-    path        : "prj"
-    uproc       : "off"
-    module_name : "sum"
-    ext_modules : "off"
-    firmware    : "./firmware"
-    constraints : "./constraints"
-    defines_syn : "+define+ALTERA"
-    message_lvl : "LOG_INF"
-    rev         : "0"
-    log         : "off"
+    path           : "prj"
+    uproc          : "off"
+    module_name    : "sum"
+    ext_modules    : "off"
+    firmware       : "./firmware"
+    constraints    : "./constraints"
+    defines_syn    : "+define+ALTERA"
+    message_lvl    : "LOG_INF"
+    rev            : "0"
+    logic_analyser : "off"
+    log            : "off"
   
 simulation:
     defines_sim  : "+define+ALTERA"
