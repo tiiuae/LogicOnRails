@@ -180,6 +180,7 @@ class ProjectParser:
             'scripts_only': self.system.get('scripts_only', ''),
             'linter': self.system.get('linter', ''),
             'rev': self.prj.get('rev', ''),
+            'logic_analyser': self.prj.get('logic_analyser', ''),
             'prj_path': args.path,
             'module_name': args.module_name,
             'vendor': args.vendor,

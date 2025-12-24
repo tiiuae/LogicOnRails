@@ -32,10 +32,10 @@ ENDCOLOR = "\033[0m"
 
 class  LiberoController():
 
-    ###############################
+    ###############################################################################################
     ##         CONSTRUCTOR
     ##
-    ################################
+    ###############################################################################################
     def __init__(self):
         self.en=SimpleNamespace()
         self.mcrsemi=SimpleNamespace()
@@ -50,15 +50,16 @@ class  LiberoController():
         self.genCommandVars()
 
 
-    ###############################
+    ###############################################################################################
     ##         BUILD VARS
     ##
-    ################################
+    ###############################################################################################
     def genConstants(self):
 
         self.cnfg.module_name = os.getenv('module_name')
         self.cnfg.tb_top = os.getenv('tb')
         self.cnfg.usr_opt = os.getenv('cadence_sim_opt')
+        self.cnfg.indetify_name = ["identify", "synthesis_1", "dbg"]
 
         self.en.cov = (os.getenv('coverage') == "on")
         self.en.gui = (os.getenv('gui') == "on")
@@ -78,14 +79,15 @@ class  LiberoController():
 
         self.path.prj = f"{os.getenv('prj_path')}/{self.cnfg.module_name}"
         self.path.fprj = f"{self.path.prj}/{self.cnfg.module_name}.prjx"
+        self.path.prj_syn = f"{self.path.prj}/synthesis"
         self.path.prj_ips = f"{self.path.prj}/component/work"
         self.path.prj_sd = f"{self.path.prj}/component/User/Private"
         self.path.prj_rtl = f"{self.path.prj}/hdl"
+        self.path.constr = os.getenv('prj_constraint')
         self.path.wave = os.getenv('wave')
         self.path.log = os.getenv('libero_log_name')
         self.path.f = os.getenv('libero_script_name')
         self.path.rprt = os.getenv('reports_path')
-        self.path.constr = os.getenv('prj_constraint')
         self.path.iopdc = f"{os.getenv('libero_iopdc')}"
         self.path.fppdc = f"{os.getenv('libero_fppdc')}"
         self.path.fpdc = f"{self.path.constr}/{os.getenv('libero_pdc_folder')}"
@@ -96,7 +98,6 @@ class  LiberoController():
         self.path.bit = f"{self.path.prj}/{self.cnfg.module_name}.bit"
         self.path.ip_manifest = f'{os.getenv("source_ips")}'
         self.path.ignore_ip = f'{os.path.dirname(os.getenv("source_ips"))}/manifest_ignore.f'
-
 
         self.mcrsemi.fam = os.getenv('libero_family')
         self.mcrsemi.die = os.getenv('libero_die')
@@ -147,10 +148,10 @@ class  LiberoController():
         return manifests
 
 
-    ###############################
+    ###############################################################################################
     ##         AUX
     ##
-    ################################
+    ###############################################################################################
 
     def msg_giveColor(self, msg, lvl):
         if (lvl == "LOG_INF"):
@@ -183,10 +184,10 @@ class  LiberoController():
             if p.is_file() and p.name.endswith(suffix) and exclude_substr not in p.name:
                 p.unlink()
 
-    ###############################
+    ###############################################################################################
     ##      CREATE PRJ
     ##
-    ################################ 
+    ############################################################################################### 
 
     def createPrjEnv(self, f):
         self.log_msg(f"LOG_INF: Generate initial libro creation command", "LOG_INF")
@@ -519,10 +520,10 @@ class  LiberoController():
                 self.log_msg(f"LOG_ERR: Report path {rpt} does not exist", "LOG_ERR", wr_file=False)
 
 
-    ###############################
+    ###############################################################################################
     ##      KEEP
     ##
-    ################################ 
+    ############################################################################################### 
 
     def getNewFolderList(self, path):
         return [
@@ -613,8 +614,56 @@ class  LiberoController():
             else:
                 self.log_msg(f"LOG_INF: {each_sd} skipped", "LOG_INF")
 
+    ########### IDENTIFY
+
+    def findIdentify(self):
+        synthesis_list = self.getNewFolderList(self.path.prj_syn)
+        syn_name = ""
+        for each_syn in synthesis_list:
+            for each_name in self.cnfg.indetify_name:
+                if (each_name in each_syn):
+                    return each_syn
+        return 0
+
+    def storeIdentify(self, syn_name):
+        keep_files_top   = [syn_name, f"{self.cnfg.module_name}_syn.prj"]
+        keep_files_ident = "identify.idc"
+        dst = os.path.join(os.getcwd(), f"{self.path.constr}/identify/synthesis")   
+        if (os.path.isdir(dst)):
+            self.log_msg(f"LOG_CRT: folder {dst} exists, deleting", "LOG_CRT")
+            shutil.rmtree(dst)
+        self.log_msg(f"LOG_INF: copying {self.path.prj_syn}/{syn_name} to {self.path.constr}", "LOG_INF")
+        shutil.copytree(f"{self.path.prj_syn}", dst)
+        for name in os.listdir(dst):
+            if name in keep_files_top:
+                continue
+            full = os.path.join(dst, name)
+            if os.path.isdir(full) and not os.path.islink(full):
+                shutil.rmtree(full)
+            else:
+                os.remove(full)
+        for name in os.listdir(f"{dst}/{syn_name}/"):
+            if name in keep_files_ident:
+                continue
+            full = os.path.join(f"{dst}/{syn_name}/", name)
+            if os.path.isdir(full) and not os.path.islink(full):
+                shutil.rmtree(full)
+            else:
+                os.remove(full)
+
+    def saveIdentify(self):
+        syn_name = self.findIdentify()
+        if not(syn_name == 0):
+            self.log_msg(f"LOG_WRN: found identify run {syn_name}", "LOG_WRN")
+            status = input(f"would you like save identify {syn_name} for future runs? (y/n)\n")
+            if status == "y":
+                self.storeIdentify(syn_name)
+            else:
+                self.log_msg(f"LOG_WRN: skiping {syn_name}", "LOG_WRN")
+
 
     def loadKeep(self, f):
+        self.saveIdentify()
         extra_ip_status = dict()
         new_ip_list = self.getNewFolderList(self.path.prj_ips)
         new_sd_list = self.getNewFolderList(self.path.prj_sd)
@@ -627,10 +676,10 @@ class  LiberoController():
             self.log_msg(f"LOG_WRN: located rtl file {each_rtl} in /hdl folder, be sure to store the file before deleting the project", "LOG_WRN")
 
 
-    ###############################
+    ###############################################################################################
     ##      ACT
     ##
-    ################################
+    ###############################################################################################
 
     def loadPrj(self, f):
         self.log_msg(f"LOG_INF: Loading Save settings", "LOG_INF")
@@ -671,10 +720,10 @@ class  LiberoController():
         f.write(f'run_tool -name {act}\n') 
 
 
-    ###############################
+    ###############################################################################################
     ##      MAIN
     ##
-    ################################ 
+    ################################################################################################ 
 
     def createPrj(self):
         if os.path.exists(self.path.f): os.remove(self.path.f)
