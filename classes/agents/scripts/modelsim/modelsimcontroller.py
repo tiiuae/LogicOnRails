@@ -180,6 +180,7 @@ class ModelSimController():
                         f.write(f'vcom -2008 -explicit -work presynth {each_c}\n')
                     elif (".v" in each_c):
                         f.write(f'vlog -sv -work presynth {each_c}\n')
+                self.ip_cmd += f" -L presynth "
         if os.path.exists("presynth"):
             self.ip_cmd += f" -L presynth "
 
