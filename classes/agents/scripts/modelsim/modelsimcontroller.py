@@ -183,13 +183,28 @@ class ModelSimController():
         if os.path.exists("presynth"):
             self.ip_cmd += f" -L presynth "
 
+    def vsim_32_64(self) -> int:
+        vsim = shutil.which("vsim")
+        if not vsim:
+            raise SystemExit("vsim not found in PATH")
+        out = subprocess.check_output(["file", "-L", vsim], text=True)
+        if "64-bit" in out:
+            return 64
+        if "32-bit" in out:
+            return 32
+        raise SystemExit(f"couldn't detect bitness: {out.strip()}")
+
     def genEDAReq(self, f):
         if (self.vendor == "microsemi"):
             if (os.getenv('LIBERO_ROOT_DIR') != ""):
                 f.write(f'\n\n#Microsemi Flow\n')
                 f.write(f'vmap polarfire {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/precompiled/vlog/polarfire\n')
                 f.write(f'vmap polarFire {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/precompiled/vlog/polarfire\n')
-                self.pli_cmd += f' -pli {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/pli/pf_crypto_lin_se64_pli.so'
+                if (self.vsim_32_64() == 64):
+                    self.pli_cmd += f' -pli {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/pli/pf_crypto_lin_se64_pli.so'
+                else:
+                    self.log_msg("LOG_WRN : running 32 bit vsim", "LOG_WRN")
+                    self.pli_cmd += f' -pli {os.getenv("LIBERO_ROOT_DIR")}/lib/modelsimpro/pli/pf_crypto_lin_me_pli.so'
                 self.ip_cmd += self.microsemi_ip_libs
                 self.microsemiIP(f)
             else:
