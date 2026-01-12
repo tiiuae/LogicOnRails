@@ -241,7 +241,7 @@ class  VivadoController():
                         f.write(f"source {each_ip}\n")
                     elif each_ip.endswith(".xci"):
                         f.write(f'import_ip {each_ip}\n')
-                        f.write(f'generate_target all [ get_files {each_ip.replace(".xci","")} ]\n')
+                        f.write(f'generate_target all [ get_files {os.path.basename(each_ip).replace(".xci","")} ]\n')
 
     ###############################
     ##      TB
