@@ -109,7 +109,7 @@ class VerilatorController():
         self.en.lint_tb = (self.cnfg.tb_top == "on")
 
         self.lvl.acc = os.getenv('access')
-        self.lvl.msg = LogLevel[os.getenv('message_lvl')]
+        self.lvl.msg = LogLevel[os.getenv('message_lvl')] if (os.getenv('message_lvl') != "") else 0 
 
         self.msg.cntnt = os.getenv('message_lvl')
 

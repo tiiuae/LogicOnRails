@@ -91,7 +91,7 @@ class ModelSimController():
         self.keep_en = (os.getenv('keep') == "on")
         self.ext_usr_skip_opt = (os.getenv('modelsim_skip_vopt') == "on")
         self.acc_lvl = os.getenv('access')
-        self.msg_lvl = LogLevel[os.getenv('message_lvl')]
+        self.msg_lvl = LogLevel[os.getenv('message_lvl')] if (os.getenv('message_lvl') != "") else 0 
         self.msg_str = os.getenv('message_lvl')
         self.wave_path = os.getenv('wave')
         self.ext_usr_vlog_opt = os.getenv('modelsim_sim_vlog')

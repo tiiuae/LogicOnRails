@@ -69,7 +69,7 @@ class  VivadoController():
         self.en.keep = (os.getenv('keep') == "on")
 
         self.lvl.acc = os.getenv('access')
-        self.lvl.msg = LogLevel[os.getenv('message_lvl')]
+        self.lvl.msg = LogLevel[os.getenv('message_lvl')] if (os.getenv('message_lvl') != "") else 0 
 
         self.msg.cntnt = os.getenv('message_lvl')
 
@@ -86,6 +86,7 @@ class  VivadoController():
         self.path.bit = f"{self.path.prj}/{self.cnfg.module_name}.bit"
 
         self.xlnx.dev = os.getenv('vivado_device')
+        self.xlnx.board = os.getenv('vivado_board')
         self.xlnx.opt_synt = os.getenv('vivado_synth_opt')
         self.xlnx.opt_rout = os.getenv('vivado_pr_opt')
         self.xlnx.opt_sim = os.getenv('vivado_sim_opt')
@@ -175,6 +176,10 @@ class  VivadoController():
         self.log_msg(f"LOG_INF: Generating initial vivado creation command", "LOG_INF")
         f.write("\n\n#Command Creation \n")
         f.write(f"create_project -part {self.xlnx.dev} {self.cnfg.module_name} {self.path.prj} \n")
+        if self.xlnx.board:
+            f.write("\n\n#Load Board \n")
+            f.write(f'set curr_prj [current_project]\n')
+            f.write(f'set_property -name "board_part" -value "{self.xlnx.board}" -objects $curr_prj\n')
 
     ###############################
     ##      EXT
@@ -235,8 +240,8 @@ class  VivadoController():
                     if each_ip.endswith(".tcl"):
                         f.write(f"source {each_ip}\n")
                     elif each_ip.endswith(".xci"):
-                        f.write(f'read_ip "{each_ip}.xci"\n')
-                        f.write(f'generate_target all [ get_files "{each_ip}.xci" ]"\n')
+                        f.write(f'import_ip {each_ip}\n')
+                        f.write(f'generate_target all [ get_files {each_ip.replace(".xci","")} ]\n')
 
     ###############################
     ##      TB

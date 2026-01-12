@@ -68,6 +68,7 @@ libero:
 
 vivado:
     vivado_device : "xc7a35tcsg324-1"
+    vivado_board  : ""
     synth_opt     : ""
     pr_opt        : ""
     sim_opt       : ""
