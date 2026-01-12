@@ -31,9 +31,9 @@ generate
 
     end else begin
         
-        always_ff @(posedge i_clk or negedge i_rst_n)
+        always_ff @(posedge i_clk or negedge i_rst)
         begin
-            if (i_rst_n == 1'b0) begin
+            if (i_rst == 1'b0) begin
         		r_rst <= 1'b0;
         	end else begin
         		r_rst <= 1'b1;
