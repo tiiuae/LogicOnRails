@@ -226,6 +226,19 @@ class  VivadoController():
         f.write(f'set_property -name "top" -value {self.cnfg.module_name} -objects $obj\n')
 
     ###############################
+    ##      Inc
+    ##
+    ################################ 
+
+    def loadInc(self, f):
+        if self.manifests["inc"]:
+            self.log_msg(f"LOG_INF: Load Includes", "LOG_INF")
+            f.write("\n\n#Include Paths \n")
+            f.write(f'set_property include_dirs {{ {" ".join(self.manifests["inc"])} }} [get_filesets sources_1]\n') 
+            f.write(f'set_property include_dirs {{ {" ".join(self.manifests["inc"])} }} [get_filesets sim_1]\n') 
+
+
+    ###############################
     ##      load IPS
     ##
     ################################ 
@@ -275,7 +288,8 @@ class  VivadoController():
                     pname, pstd, ploc, pdir, pvendor = col[:5]
                     if pvendor.lower() == 'xilinx':
                         x.write(f"set_property PACKAGE_PIN {ploc} [get_ports {{{pname}}}]\n")
-                        x.write(f"set_property IOSTANDARD {pstd} [get_ports {{{pname}}}]\n")
+                        if pstd not in ("", '""'):
+                            x.write(f"set_property IOSTANDARD {pstd} [get_ports {{{pname}}}]\n")
         else:
             self.log_msg(f"LOG_CRT: No PIN found while generating xdc", "LOG_CRT")        
 
@@ -452,6 +466,7 @@ class  VivadoController():
         self.setTop(f)      
         self.loadIPs(f)    
         self.loadTb(f)        
+        self.loadInc(f)
         self.loadXDC(f)  
         self.handleClose(f)      
         self.logfile.close()

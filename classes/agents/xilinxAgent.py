@@ -96,4 +96,4 @@ class XilinxAgent():
         #subprocess.call(["/bin/bash", f"{self.folder}/{self.simfile}"])        
 
     def runPrj(self):
-        subprocess.call(["vivado", f'{self.args.path}/{self.args.module_name}.xpr'])        
+        subprocess.call(["vivado", f'{self.args.path}/{self.args.module_name}.xpr'])       
