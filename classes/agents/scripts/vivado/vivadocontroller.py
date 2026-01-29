@@ -210,15 +210,24 @@ class  VivadoController():
     ##      Defines
     ##
     ################################ 
+
+    def loadSynthDef(self, f):
+        synth_def = self.cmd.defs
+        synth_def += f" {self.defs.synth.replace('+define+','  ').replace('+',' ').strip()}"
+        f.write(f"\n\n#Generating SYN defines\n")
+        f.write(f'set_property "VERILOG_DEFINE" {{{synth_def}}} [get_filesets sources_1]\n')
+    
+    def loadSimDef(self, f):
+        sim_def = self.cmd.defs
+        sim_def += f" {self.defs.sim.replace('+define+','  ').replace('+',' ').strip()}"
+        sim_def += f" SIMULATION"
+        f.write(f"\n\n#Generating SIM defines\n")
+        f.write(f'set_property "VERILOG_DEFINE" {{{sim_def}}} [get_filesets sim_1]\n')
     
     def loadDefs(self, f):
         self.log_msg(f"LOG_INF: configuring defines", "LOG_INF")
-        self.cmd.defs += f" {self.defs.synth.replace('+define+','  ').replace('+',' ').strip()}"
-        self.cmd.defs = self.cmd.defs.split()
-        f.write(f"\n\n#Generating defines\n")
-        for each_define in self.cmd.defs:
-            f.write(f'set_property -name "verilog_define" -value {each_define} -objects $obj\n')
-
+        self.loadSynthDef(f)
+        self.loadSimDef(f)
 
     def setTop(self, f):
         self.log_msg(f"LOG_INF: set top level", "LOG_INF")
@@ -462,11 +471,11 @@ class  VivadoController():
         self.createPrjEnv(f)
         self.loadRTL(f)
         self.loadExt(f)
-        self.loadDefs(f)
         self.setTop(f)      
         self.loadIPs(f)    
         self.loadTb(f)        
         self.loadInc(f)
+        self.loadDefs(f)
         self.loadXDC(f)  
         self.handleClose(f)      
         self.logfile.close()
