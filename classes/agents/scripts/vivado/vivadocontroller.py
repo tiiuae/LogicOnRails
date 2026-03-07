@@ -260,7 +260,12 @@ class  VivadoController():
                 f.write(f"\n\n#IP flow\n")
                 for each_ip in ip_path.split():
                     if each_ip.endswith(".tcl"):
+                        fname = os.path.basename(each_ip)
+                        fstem, _ext = os.path.splitext(fname)
                         f.write(f"source {each_ip}\n")
+                        f.write(f"make_wrapper -files [get_files {self.path.prj}/{self.cnfg.module_name}.srcs/sources_1/bd/{fstem}/{fstem}.bd] -top\n")
+                        f.write(f"add_files -norecurse {self.path.prj}/{self.cnfg.module_name}.srcs/sources_1/bd/{fstem}/hdl/{fstem}_wrapper.v\n")
+                        f.write(f"update_compile_order -fileset sources_1\n")       
                     elif each_ip.endswith(".xci"):
                         f.write(f'import_ip {each_ip}\n')
                         f.write(f'generate_target all [ get_files {os.path.basename(each_ip).replace(".xci","")} ]\n')
@@ -505,7 +510,6 @@ class  VivadoController():
         self.openPrj(f)
         self.loadSim(f)
         self.logfile.close()
-
 
     def createSTA(self):
         if os.path.exists(self.path.f): os.remove(self.path.f)

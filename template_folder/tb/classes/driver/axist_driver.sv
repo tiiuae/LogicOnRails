@@ -17,6 +17,10 @@ package axist_driver_pkg;
             .DATA_WIDTH(DATA_WIDTH),
             .USER_WIDTH(USER_WIDTH)
         ) viface;
+
+        logic [DATA_WIDTH-1:0] int_tdata;
+        logic [USER_WIDTH-1:0] int_tuser;
+        logic                  int_tlast;
     
         //##################################
         //         CONSTRUCTOR
@@ -59,21 +63,57 @@ package axist_driver_pkg;
         endfunction
 
         //##################################
-        //         TASK
+        //         TASK RX
         //################################## 
 
-        task automatic  clear ();
+        task automatic  rst_sink ();
+            viface.if_tready <= 1'b0;
+            @(posedge viface.i_clk);
+        endtask: rst_sink
+
+
+        task automatic raise_tready ();
+            viface.if_tready <= 1'b1;
+            @(posedge viface.i_clk);
+        endtask
+
+        task automatic clear_tready ();
+            viface.if_tready <= 1'b0;
+            @(posedge viface.i_clk);
+        endtask
+
+        task automatic wait_sink ();
+            raise_tready();
+            wait ((viface.if_tvalid & viface.if_tready) != 1'b1);
+            int_tdata <= viface.if_tdata;
+            int_tuser <= viface.if_tuser;
+            int_tlast <= viface.if_tlast;        
+        endtask
+
+        //##################################
+        //         TASK TX
+        //################################## 
+
+        task automatic rst_source ();
+            rst_iface();        
+        endtask: rst_source
+
+
+        task automatic  rst_iface ();
             viface.if_tvalid <= 1'b0;
             viface.if_tdata <= 'b0;
             viface.if_tkeep <= 'b0;
             viface.if_tlast <= 1'b0;
+            viface.if_tuser <= '0;      
             @(posedge viface.i_clk);
-        endtask: clear
+        endtask: rst_iface
 
         task automatic  transmit (
             input logic [BUS_WIDTH-1:0]  data       = '1, 
             input logic                  last       = 1'b0,
-            input logic                  reset      = 1'b0
+            input logic                  reset      = 1'b0, 
+            input logic [USER_WIDTH-1:0] tuser      = '0
+
         );
             int rst;
             viface.if_tvalid <= 1'b1; 
@@ -89,6 +129,7 @@ package axist_driver_pkg;
             end
             viface.if_tlast  <= last;
             viface.if_tdata  <= data;
+            viface.if_tuser  <= tuser;
             @(posedge viface.i_clk);
             while((viface.if_tready & viface.if_tvalid) == 1'b0) begin
                 @(posedge viface.i_clk);
@@ -98,22 +139,27 @@ package axist_driver_pkg;
 
 
         task automatic  transmit_batch (
-            input logic [BUS_WIDTH-1:0] a_tx[]
+            input logic [BUS_WIDTH-1:0]  a_tx[],
+            input logic [USER_WIDTH-1:0] tuser = '0
         );
+
+            $displayh("size of the loop %d", $size(a_tx));
             for (int i = 0; i < $size(a_tx); i++) begin
                 logic last = (i == ($size(a_tx) -1));
-                transmit(a_tx[i], last, 1'b0);
+                transmit(a_tx[i], last, 1'b0, tuser);
             end 
-            clear();
+            rst_iface();
         endtask: transmit_batch  
 
 
         task automatic init_transfer();
+            @(posedge viface.i_clk);
             transmit_batch(a_tx);
         endtask: init_transfer;
 
 
         task automatic init_batch_transfer();
+            @(posedge viface.i_clk);
             for (int i =0; i < pkt_n; i++ ) begin
                 transmit_batch(a_tx);
                 gen_delay();

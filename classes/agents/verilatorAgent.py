@@ -48,5 +48,3 @@ class VerilatorAgent():
         self.postLint()  
         self.vrltorCtrl.cleanEnv()
         self.vrltorCtrl.printLogs(self.lintLogFile)
-        #to be deprecated
-        #subprocess.call(["/bin/bash", f"{self.folder}/{self.file}", self.args.tb])

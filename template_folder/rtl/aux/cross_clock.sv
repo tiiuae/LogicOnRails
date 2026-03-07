@@ -1,11 +1,9 @@
 
 module cross_clock #(
-  parameter SLOWER_2_FASTER = 1,
-  parameter FAST = 1,
-  parameter SLOW = 1
-
-  )
-  (
+    parameter SLOWER_2_FASTER = 1,
+    parameter FAST = 1,
+    parameter SLOW = 1
+) (
     input  logic i_rst_A_n,
     input  logic i_rst_B_n,
     input  logic i_clk_A,
@@ -54,7 +52,7 @@ end else begin : fast_to_slow
 /////////////////////////////////////////////////////////////////////////////////////
 
     //SIGNAL
-    localparam RATE = (FAST/SLOW)*2;
+    localparam RATE = int'(FAST/SLOW)*2;
     localparam RATE_VALUE = RATE-1;
     localparam COUNTER_RATE = $clog2(RATE);
     logic [COUNTER_RATE-1:0] c_counter;

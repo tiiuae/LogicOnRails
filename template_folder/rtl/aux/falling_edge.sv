@@ -3,8 +3,8 @@ module falling_edge
   #(
     parameter REGISTER = 0
     )(
-    input  logic i_rst_n,
     input  logic i_clk,
+    input  logic i_rst_n,
     input  logic i_data,
     output logic o_data
 );

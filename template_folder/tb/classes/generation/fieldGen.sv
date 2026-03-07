@@ -87,7 +87,7 @@ package fieldgen_pkg;
             input logic this_data_rnd       = this.data_rnd
         );
             if (this_data_rnd == 1'b1) begin
-                datagen = byte'($urandom_range( int'(this_data_range_min), int'(this_data_range_max)));
+                datagen = byte'($urandom_range( unsigned'(this_data_range_min), unsigned'(this_data_range_max)));
             end else begin
                 datagen = this_data_cons;
             end
