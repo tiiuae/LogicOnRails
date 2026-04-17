@@ -131,7 +131,7 @@ class VerilatorController():
         self.altera_ip_libs = ""
         self.cmd.files = ""
         self.cmd.inc = ""
-        self.cmd.defs = f"{self.defs.tname} {self.defs.eda_tool} {self.defs.msglvl} {os.getenv('synth_def').replace('+define+', ' +define+')} {os.getenv('sim_def').replace('+define+', ' +define+')}"
+        self.cmd.defs = f"{self.defs.tname} {self.defs.eda_tool} {self.defs.msglvl} {os.getenv('synth_def').replace('+define+', ' +define+')} "
 
     def genManifests(self):
         manifests = dict()
