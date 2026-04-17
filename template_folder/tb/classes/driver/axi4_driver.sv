@@ -48,7 +48,6 @@ package axi4_driver_pkg;
             addrrnd = this_addrrnd;
             addr_rng_min = this_addr_rng_min;
             addr_rng_max = this_addr_rng_max;
-            ag_framegen.print_stream();
             if (viface.DATA_WIDTH != DATA_WIDTH) begin
                 $display("error, width missmatch between class and interface");
             end
@@ -243,6 +242,20 @@ package axi4_driver_pkg;
         //      EXECUTE BATCH
         //################################## 
 
+        task automatic  transmit_one (
+            input logic [DATA_WIDTH-1:0]  data = '0,
+            input logic [ADDR_WIDTH-1:0]  addr = '0
+        );
+            @(posedge viface.i_clk);
+            wraddr_phase(addr, '0, '0, '0);
+            @(posedge viface.i_clk);
+            write_phase({data}, 1'b1, 1'b1);
+            clear();
+            rsp_phase ();
+            viface.if_awid <= viface.if_awid+1;
+            ->> e_pkt_tx;
+        endtask 
+
         task automatic  transmit_batch (
             input logic [BUS_WIDTH-1:0] a_tx[],
             input logic[ADDR_WIDTH-1:0] addr = '0,
@@ -266,6 +279,19 @@ package axi4_driver_pkg;
             viface.if_awid <= viface.if_awid+1;            
             ->> e_pkt_tx;
         endtask  
+
+
+        task automatic  receive_one (
+            input logic [ADDR_WIDTH-1:0]  addr = '0
+        );
+            @(posedge viface.i_clk);
+            rdaddr_phase(addr, '0, '0, '0);
+            @(posedge viface.i_clk);
+            read_phase();
+            clear(1'b1);
+            viface.if_arid <= viface.if_arid+1;
+            ->> e_pkt_rx;
+        endtask 
 
         task automatic  receive_batch (
             input logic[ADDR_WIDTH-1:0] addr = '0,

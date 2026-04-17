@@ -1,6 +1,7 @@
 package hdmi_driver_pkg;
     import hdmi_rx_driver_pkg::*;
     import hdmi_tx_driver_pkg::*;
+    import verif_pkg::*;
     import logger_pkg::*;
    `include "tb_defs.svh"
 
@@ -24,10 +25,11 @@ package hdmi_driver_pkg;
             .USER_WIDTH ( USER_WIDTH  )
         ) ag_hdmi_tx_drvr;
 
-        Logger ag_logger;
-        int x_resolution;
-        int y_resolution;
-        int pxlperclock;
+        Logger                            ag_logger;
+        int                               x_resolution;
+        int                               y_resolution;
+        int                               pxlperclock;
+        mailbox #(st_hdmi_pxl)            mb;
 
     // =============================================================================
     //                           CONSTRUCTOR  
@@ -54,10 +56,22 @@ package hdmi_driver_pkg;
             input int this_x_resolution,
             input int this_y_resolution,
             input int this_pxlperclock,
+            input logic this_skip_column,
+            input logic this_skip_line,
+
             input t_msg_lvl msg_lvl = LOG_INF 
         );
-            ag_hdmi_rx_drvr = new(axist_vif_rx, frm_rx, meta_rx, this_x_resolution, this_y_resolution, this_pxlperclock);
-            ag_hdmi_tx_drvr = new(axist_vif_tx, frm_tx, meta_tx, this_x_resolution, this_y_resolution, this_pxlperclock);
+            mb = new();
+            ag_hdmi_rx_drvr = new(
+                axist_vif_rx, frm_rx, meta_rx, 
+                this_x_resolution, this_y_resolution, this_pxlperclock, 
+                this_skip_column, this_skip_line, mb
+            );
+            ag_hdmi_tx_drvr = new(
+                axist_vif_tx, frm_tx, meta_tx, 
+                this_x_resolution, this_y_resolution, this_pxlperclock, 
+                this_skip_column, this_skip_line, mb
+            );
             `ifdef GUI
                 ag_logger = new( msg_lvl, 1'b0);
             `else
@@ -114,8 +128,8 @@ package hdmi_driver_pkg;
         );
             fork
                 ag_hdmi_rx_drvr.rx_send_video(frame_n, frm_delay, line_delay);
-                ag_hdmi_tx_drvr.tx_compare();
-            join
+                ag_hdmi_tx_drvr.tx_compare(500, 8);
+            join_none
         endtask
 
 

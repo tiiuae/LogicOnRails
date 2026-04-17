@@ -25,10 +25,12 @@ logic                  r_tvalid;
 //##################################
 
 always_ff @(posedge i_clk) begin
-    r_tdata <= if_axist_in.if_tdata;
-    r_tkeep <= if_axist_in.if_tkeep;
-    r_tuser <= if_axist_in.if_tuser;    
-    r_tlast <= if_axist_in.if_tlast;    
+    if ((if_axist_in.if_tready & if_axist_in.if_tvalid) == 1'b1) begin
+        r_tdata <= if_axist_in.if_tdata;
+        r_tkeep <= if_axist_in.if_tkeep;
+        r_tuser <= if_axist_in.if_tuser;    
+        r_tlast <= if_axist_in.if_tlast;    
+    end
 end
 
 always_ff @(posedge i_clk or negedge i_rst_n) 
@@ -38,7 +40,7 @@ begin
     end else begin
         if ((if_axist_in.if_tready & if_axist_in.if_tvalid) == 1'b1) begin
             r_tvalid <= if_axist_in.if_tvalid;
-        end else begin
+        end else if ((if_axist_out.if_tready & if_axist_out.if_tvalid) == 1'b1) begin
             r_tvalid <= 1'b0;
         end
     end

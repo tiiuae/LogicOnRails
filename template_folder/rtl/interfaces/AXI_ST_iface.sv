@@ -49,4 +49,24 @@ modport sink (
 
 );
 
+clocking mon_cb @(posedge i_clk);
+    default input #1step output #0;
+    input if_tvalid;
+    input if_tready;
+    input if_tdata;
+    input if_tkeep;
+    input if_tlast;
+    input if_tuser;
+endclocking
+
+clocking drv_cb @(posedge i_clk);
+    default input #1step output #0;
+    input  if_tvalid;
+    input  if_tdata;
+    input  if_tkeep;
+    input  if_tlast;
+    input  if_tuser;
+    output if_tready;
+endclocking
+
 endinterface

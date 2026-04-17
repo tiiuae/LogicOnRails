@@ -83,12 +83,24 @@ package axist_driver_pkg;
         endtask
 
         task automatic wait_sink ();
-            raise_tready();
-            wait ((viface.if_tvalid & viface.if_tready) != 1'b1);
-            int_tdata <= viface.if_tdata;
-            int_tuser <= viface.if_tuser;
-            int_tlast <= viface.if_tlast;        
+            if (viface.if_tready == 1'b0) begin
+                viface.if_tready = 1'b1;
+            end
+            @(posedge viface.i_clk iff (viface.if_tvalid && viface.if_tready));
+            int_tdata = viface.if_tdata;
+            int_tuser = viface.if_tuser;
+            int_tlast = viface.if_tlast;        
         endtask
+
+        task automatic one_sink ();
+            raise_tready();
+            @(posedge viface.i_clk iff (viface.if_tvalid && viface.if_tready));
+            int_tdata = viface.if_tdata;
+            int_tuser = viface.if_tuser;
+            int_tlast = viface.if_tlast;   
+            rst_sink();    
+        endtask
+
 
         //##################################
         //         TASK TX
